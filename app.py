@@ -1,15 +1,14 @@
-
+# vietqr/app.py
 import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
 import qrcode
+from PIL import Image, ImageDraw, ImageFont
 import os
 
-# Đường dẫn cố định đến các file
-LOGO_PATH = "assets/logo.png"
-BACKGROUND_PATH = "assets/background.png"
-FONT_PATH = "assets/DejaVuSans-Bold.ttf"
+# === CẤU HÌNH CỐ ĐỊNH ===
+FONT_PATH = "vietqr/assets/DejaVuSans-Bold.ttf"
+LOGO_PATH = "vietqr/assets/logo.png"
+BG_PATH = "vietqr/assets/background.png"
 
-# === HÀM TIỆN ÍCH ===
 def format_tlv(tag, value):
     return f"{tag}{len(value):02d}{value}"
 
@@ -22,7 +21,7 @@ def crc16_ccitt(data: str) -> str:
             crc &= 0xFFFF
     return format(crc, '04X')
 
-def build_vietqr_payload(merchant_id, bank_bin, add_info):
+def build_payload(merchant_id, bank_bin, add_info):
     payload = ''
     payload += format_tlv("00", "01")
     payload += format_tlv("01", "11")
@@ -35,51 +34,29 @@ def build_vietqr_payload(merchant_id, bank_bin, add_info):
     payload += format_tlv("63", crc16_ccitt(payload + "6304"))
     return payload
 
-# === TẠO QR ===
-def create_qr_image(data):
+def generate_qr_with_logo(payload):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
-    qr.add_data(data)
+    qr.add_data(payload)
     qr.make(fit=True)
-    img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
-    logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo = logo.resize((int(img_qr.width * 0.4), int(img_qr.height * 0.15)))
-    pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
-    img_qr.paste(logo, pos, mask=logo)
-    return img_qr
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((int(qr_img.width * 0.45), int(qr_img.height * 0.15)))
+    pos = ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2)
+    qr_img.paste(logo, pos, mask=logo)
 
-# === GẮN VÀO BACKGROUND ===
-def render_final_image(qr_img, merchant_id, acc_name):
-    background = Image.open(BACKGROUND_PATH).convert("RGBA")
-    qr_img = qr_img.resize((540, 540))
-    background.paste(qr_img, (460, 936), mask=qr_img)
+    return qr_img
 
-    draw = ImageDraw.Draw(background)
-    font1 = ImageFont.truetype(FONT_PATH, 45)
-    font2 = ImageFont.truetype(FONT_PATH, 60)
-    draw.rectangle([(460, 1580), (1000, 2000)], fill="white")
-    draw.text((490, 1650), "Tài khoản định danh:", fill=(0, 102, 102), font=font1)
-    draw.text((410, 1730), merchant_id, fill=(0, 102, 102), font=font2)
-    return background
+# ==== STREAMLIT UI ====
+st.title("🇻🇳 Tạo VietQR chuyển khoản")
+merchant_id = st.text_input("🔢 Nhập số tài khoản định danh:")
+acc_name = st.text_input("👤 Tên tài khoản:")
+add_info = st.text_input("📝 Nội dung chuyển tiền:")
+bank_bin = st.text_input("🏦 Mã ngân hàng (mặc định 970418):", "970418")
 
-# === GIAO DIỆN STREAMLIT ===
-st.title("🎨 Tạo ảnh QR VietQR có logo & nền")
-
-merchant_id = st.text_input("🔢 Số tài khoản định danh", max_chars=15)
-acc_name = st.text_input("👤 Tên chủ tài khoản")
-add_info = st.text_input("📝 Nội dung chuyển tiền", value="Thanh toan don hang")
-bank_bin = "970418"  # Mặc định: Vietcombank
-
-if st.button("Tạo ảnh QR"):
-    if merchant_id and acc_name:
-        payload = build_vietqr_payload(merchant_id, bank_bin, add_info)
-        qr_img = create_qr_image(payload)
-        final_img = render_final_image(qr_img, merchant_id, acc_name)
-        st.image(final_img, caption="Ảnh QR đã tạo", use_column_width=True)
-
-        # Cho phép tải
-        final_img.save("output.png")
-        with open("output.png", "rb") as f:
-            st.download_button("📥 Tải ảnh", f, file_name="vietqr.png")
+if st.button("🎉 Tạo ảnh QR"):
+    if not all([merchant_id, acc_name, add_info]):
+        st.warning("Vui lòng nhập đầy đủ thông tin.")
     else:
-        st.error("Vui lòng nhập đủ số tài khoản và tên.")
+        payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip())
+        qr_img = generate_qr_with_logo(payload)
+        st.image(qr_img, caption="🎯 QR Code với logo", use_column_width=False)
