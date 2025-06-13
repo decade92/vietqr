@@ -5,9 +5,10 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 # === CẤU HÌNH CỐ ĐỊNH ===
-FONT_PATH = "vietqr/assets/DejaVuSans-Bold.ttf"
-LOGO_PATH = "vietqr/assets/logo.png"
-BG_PATH = "vietqr/assets/background.png"
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "../assets")
+LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
+BACKGROUND_PATH = os.path.join(ASSETS_DIR, "background.png")
+FONT_PATH = os.path.join(ASSETS_DIR, "DejaVuSans-Bold.ttf")
 
 def format_tlv(tag, value):
     return f"{tag}{len(value):02d}{value}"
