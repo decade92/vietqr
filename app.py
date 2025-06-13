@@ -21,39 +21,53 @@ def crc16_ccitt(data: str) -> str:
             crc &= 0xFFFF
     return format(crc, '04X')
 
-def build_payload(merchant_id, bank_bin, add_info):
-    payload = ''
-    payload += format_tlv("00", "01")  # Payload Format Indicator
-    payload += format_tlv("01", "11")  # Point of Initiation Method (static)
+def build_payload(merchant_id, bank_bin, add_info, amount=None):
+    def format_tlv(tag, value):
+        return f"{tag}{len(value):02d}{value}"
 
-    # Sử dụng loại tài khoản ngân hàng (0208) mặc định
-    acc_type = "0208"
+    def crc16_ccitt(data: str) -> str:
+        crc = 0xFFFF
+        for b in data.encode('utf-8'):
+            crc ^= b << 8
+            for _ in range(8):
+                crc = (crc << 1) ^ 0x1021 if (crc & 0x8000) else crc << 1
+                crc &= 0xFFFF
+        return format(crc, '04X')
 
-    # Merchant Account sub-TLVs
-    merchant_account = (
-        format_tlv("00", acc_type) +                 # Account Type
-        format_tlv("01", bank_bin) +                 # Bank BIN
-        format_tlv("02", merchant_id)                # Merchant ID / Tài khoản định danh
+    payload = ""
+    payload += format_tlv("00", "01")        # Payload Format Indicator
+    payload += format_tlv("01", "12")        # Point of Initiation Method (QR động)
+
+    # --- Tag 38: Merchant Account Information ---
+    guid = format_tlv("00", "A000000727")
+
+    merchant_info = (
+        format_tlv("00", bank_bin) +          # Bank BIN
+        format_tlv("01", merchant_id)         # Merchant ID / số tài khoản định danh
     )
-
-    # Tag 38: Merchant Account Information (NAPAS format)
     acc_info = (
-        format_tlv("00", "A000000727") +             # AID (NAPAS QR)
-        format_tlv("01", merchant_account) +         # Merchant account thông tin
-        format_tlv("02", "QRIBFTTA")                 # QRIBFTTA dịch vụ
+        guid +
+        format_tlv("01", merchant_info) +
+        format_tlv("02", "QRIBFTTA")
     )
     payload += format_tlv("38", acc_info)
 
-    # Merchant Category Code, Currency, Country Code
-    payload += format_tlv("52", "0000")              # MCC
-    payload += format_tlv("53", "704")               # Currency: VND
-    payload += format_tlv("58", "VN")                # Country Code
+    payload += format_tlv("52", "0000")       # Merchant Category Code
+    payload += format_tlv("53", "704")        # Currency (VND)
 
-    # Additional Data Field (thông tin chuyển khoản)
-    payload += format_tlv("62", format_tlv("08", add_info))
+    if amount:
+        payload += format_tlv("54", str(amount))  # Optional: Amount (QR động có thể có)
 
-    # CRC Checksum
-    payload += format_tlv("63", crc16_ccitt(payload + "6304"))
+    payload += format_tlv("58", "VN")         # Country code
+
+    # Additional Data Field – nội dung chuyển khoản
+    additional_data = format_tlv("08", add_info)
+    payload += format_tlv("62", additional_data)
+
+    # CRC (Checksum)
+    payload_for_crc = payload + "6304"
+    crc = crc16_ccitt(payload_for_crc)
+    payload += format_tlv("63", crc)
 
     return payload
 
