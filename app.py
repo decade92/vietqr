@@ -24,16 +24,25 @@ def crc16_ccitt(data: str) -> str:
 
 def build_payload(merchant_id, bank_bin, add_info):
     payload = ''
-    payload += format_tlv("00", "01")
-    payload += format_tlv("01", "11")
-    acc_info = format_tlv("00", "A000000727") + format_tlv("01", f"0006{bank_bin}0115{merchant_id}") + format_tlv("02", "QRIBFTTA")
-    payload += format_tlv("38", acc_info)
-    payload += format_tlv("52", "0000")
-    payload += format_tlv("53", "704")
-    payload += format_tlv("58", "VN")
-    payload += format_tlv("62", format_tlv("08", add_info))
-    payload += format_tlv("63", crc16_ccitt(payload + "6304"))
+    payload += format_tlv("00", "01")  # Payload Format Indicator
+    payload += format_tlv("01", "11")  # Point of Initiation Method (11 = dynamic)
+
+    # Merchant Account Information – tag 38
+    vietqr_info = ''
+    vietqr_info += format_tlv("00", "A000000727")      # Application ID (NAPAS)
+    vietqr_info += format_tlv("01", bank_bin.strip())  # Bank BIN (6 số)
+    vietqr_info += format_tlv("02", merchant_id.strip())  # Số tài khoản định danh
+    vietqr_info += format_tlv("03", "QRIBFTTA")        # Transaction Type
+
+    payload += format_tlv("38", vietqr_info)
+    payload += format_tlv("52", "0000")                # Merchant Category Code
+    payload += format_tlv("53", "704")                 # Currency: VND
+    payload += format_tlv("58", "VN")                  # Country Code: Vietnam
+    payload += format_tlv("62", format_tlv("08", add_info.strip()))  # Additional Info
+    payload += format_tlv("63", crc16_ccitt(payload + "6304"))       # CRC checksum
+
     return payload
+
 
 def generate_qr_with_logo(payload):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
