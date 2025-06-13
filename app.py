@@ -32,7 +32,7 @@ def build_payload(merchant_id, bank_bin, add_info):
     acc_info += format_tlv("00", "A000000727")          # Application ID
     acc_info += format_tlv("01", bank_bin.strip())      # Bank BIN
     acc_info += format_tlv("02", merchant_id.strip())   # Account number
-    acc_info += format_tlv("03", "QRIBFTTA")            # Transaction type
+    acc_info += format_tlv("02", "QRIBFTTA")            # Transaction type
 
     payload += format_tlv("38", acc_info)               # Embed into Tag 38
 
