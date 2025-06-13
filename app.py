@@ -56,8 +56,8 @@ def generate_qr_with_logo(payload):
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo_size = int(qr_img.width * 0.25)
-    logo = logo.resize((logo_size, logo_size))
+    logo_size = int(qr_img.width * 0.15)
+    logo = logo.resize((logo_ssize * 3, logo_size))
     pos = ((qr_img.width - logo_size) // 2, (qr_img.height - logo_size) // 2)
     qr_img.paste(logo, pos, mask=logo)
 
@@ -77,6 +77,6 @@ if st.button("🎉 Tạo ảnh QR"):
     if not all([merchant_id, acc_name, add_info]):
         st.warning("Vui lòng nhập đầy đủ thông tin.")
     else:
-        payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip(), account_type)
+        payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip())
         qr_img = generate_qr_with_logo(payload)
         st.image(qr_img, caption="🎯 QR Code với logo", use_container_width=True)
