@@ -75,8 +75,6 @@ logo = logo.resize((logo_width, logo_height))  # ✅ Phải là một tuple
 pos = ((qr_img.width - logo_width) // 2, (qr_img.height - logo_height) // 2)
 qr_img.paste(logo, pos, mask=logo)
 
-    return qr_img
-
 # ==== STREAMLIT UI ====
 st.title("🇻🇳 Tạo VietQR chuyển khoản")
 
