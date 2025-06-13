@@ -7,7 +7,6 @@ import os
 # === CẤU HÌNH CỐ ĐỊNH ===
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
-BACKGROUND_PATH = os.path.join(ASSETS_DIR, "background.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "DejaVuSans-Bold.ttf")
 
 def format_tlv(tag, value):
@@ -22,33 +21,29 @@ def crc16_ccitt(data: str) -> str:
             crc &= 0xFFFF
     return format(crc, '04X')
 
-def build_payload(merchant_id, bank_bin, add_info):
+def build_payload(merchant_id, bank_bin, add_info, account_type="personal"):
     payload = ''
     payload += format_tlv("00", "01")  # Payload Format Indicator
-    payload += format_tlv("01", "11")  # Point of Initiation Method: dynamic
+    payload += format_tlv("01", "11")  # Point of Initiation Method
 
-    # === Merchant Account Information (tag 38 - VietQR) ===
+    # === Merchant Account Info ===
     acc_info = ''
-    acc_info += format_tlv("00", "A000000727")          # Application ID
+    acc_info += format_tlv("00", "A000000727")          # App ID
     acc_info += format_tlv("01", bank_bin.strip())      # Bank BIN
-    acc_info += format_tlv("02", merchant_id.strip())   # Account number
-    acc_info += format_tlv("02", "QRIBFTTA")            # Transaction type
+    acc_info += format_tlv("02", merchant_id.strip())   # Merchant Account
+    acc_info += format_tlv("03", "QRIBFTTA")            # Type
+    acc_info += format_tlv("04", "0208" if account_type == "personal" else "0308")  # Account Type
 
-    payload += format_tlv("38", acc_info)               # Embed into Tag 38
-
-    payload += format_tlv("52", "0000")                 # Merchant Category Code
-    payload += format_tlv("53", "704")                  # Currency: VND
-    payload += format_tlv("58", "VN")                   # Country Code: Vietnam
+    payload += format_tlv("38", acc_info)
+    payload += format_tlv("52", "0000")
+    payload += format_tlv("53", "704")
+    payload += format_tlv("58", "VN")
 
     if add_info.strip():
-        payload += format_tlv("62", format_tlv("08", add_info.strip()))  # Additional Info
+        payload += format_tlv("62", format_tlv("08", add_info.strip()))
 
-    # === CRC Checksum ===
     payload += format_tlv("63", crc16_ccitt(payload + "6304"))
-
     return payload
-
-
 
 def generate_qr_with_logo(payload):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
@@ -56,24 +51,28 @@ def generate_qr_with_logo(payload):
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((int(qr_img.width * 0.45), int(qr_img.height * 0.15)))
-    pos = ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2)
+    logo = Image.open(LOGO_PATH).convert("RGBA")
+    logo_size = int(qr_img.width * 0.25)
+    logo = logo.resize((logo_size, logo_size))
+    pos = ((qr_img.width - logo_size) // 2, (qr_img.height - logo_size) // 2)
     qr_img.paste(logo, pos, mask=logo)
 
     return qr_img
 
 # ==== STREAMLIT UI ====
 st.title("🇻🇳 Tạo VietQR chuyển khoản")
-merchant_id = st.text_input("🔢 Nhập số tài khoản định danh:")
+
+merchant_id = st.text_input("🔢 Số tài khoản định danh:")
 acc_name = st.text_input("👤 Tên tài khoản:")
-add_info = st.text_input("📝 Nội dung chuyển tiền:")
+add_info = st.text_input("📝 Nội dung chuyển khoản:")
 bank_bin = st.text_input("🏦 Mã ngân hàng (mặc định 970418):", "970418")
+account_type_label = st.selectbox("🔐 Loại tài khoản:", ["Cá nhân", "Doanh nghiệp"])
+account_type = "personal" if account_type_label == "Cá nhân" else "business"
 
 if st.button("🎉 Tạo ảnh QR"):
     if not all([merchant_id, acc_name, add_info]):
         st.warning("Vui lòng nhập đầy đủ thông tin.")
     else:
-        payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip())
+        payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip(), account_type)
         qr_img = generate_qr_with_logo(payload)
-        st.image(qr_img, caption="🎯 QR Code với logo", use_container_width=False)
-
+        st.image(qr_img, caption="🎯 QR Code với logo", use_container_width=True)
