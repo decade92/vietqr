@@ -96,11 +96,14 @@ def create_qr_with_text(data, acc_name, merchant_id):
     img_qr.paste(logo, pos, mask=logo)
 
     # Nội dung dòng text (4 dòng)
+    acc_name_text = acc_name.upper()
+    merchant_id_text = merchant_id
+
     lines = [
         ("Tên tài khoản:", 28, "black"),
-        (acc_name.upper(), 34, "#007C71"),
+        (acc_name_text, 34, "#007C71"),
         ("Tài khoản định danh:", 28, "black"),
-        (merchant_id, 34, "#007C71")
+        (merchant_id_text, 34, "#007C71")
     ]
     spacing = 12
     total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
@@ -122,6 +125,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
     canvas.save(buf, format="PNG")
     buf.seek(0)
     return buf
+
 
 
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
