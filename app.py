@@ -26,24 +26,33 @@ def build_payload(merchant_id, bank_bin, add_info):
     payload += format_tlv("00", "01")  # Payload Format Indicator
     payload += format_tlv("01", "11")  # Point of Initiation Method (static)
 
-    # Tài khoản ngân hàng hoặc ví điện tử
-    acc_type = "0208" if len(merchant_id) <= 20 else "0308"
+    # Sử dụng loại tài khoản ngân hàng (0208) mặc định
+    acc_type = "0208"
 
-    # 38: Merchant Account Information (AID)
+    # Merchant Account sub-TLVs
+    merchant_account = (
+        format_tlv("00", acc_type) +                 # Account Type
+        format_tlv("01", bank_bin) +                 # Bank BIN
+        format_tlv("02", merchant_id)                # Merchant ID / Tài khoản định danh
+    )
+
+    # Tag 38: Merchant Account Information (NAPAS format)
     acc_info = (
-        format_tlv("00", "A000000727") +
-        format_tlv("01", acc_type + bank_bin + f"{len(merchant_id):02d}" + merchant_id) +
-        format_tlv("02", "QRIBFTTA")
+        format_tlv("00", "A000000727") +             # AID (NAPAS QR)
+        format_tlv("01", merchant_account) +         # Merchant account thông tin
+        format_tlv("02", "QRIBFTTA")                 # QRIBFTTA dịch vụ
     )
     payload += format_tlv("38", acc_info)
 
-    # Mã MCC (Merchant Category Code), mã tiền tệ, quốc gia, thông tin bổ sung
-    payload += format_tlv("52", "0000")  # MCC
-    payload += format_tlv("53", "704")   # Currency: VND
-    payload += format_tlv("58", "VN")    # Country: Vietnam
-    payload += format_tlv("62", format_tlv("08", add_info))  # Additional Data Field
+    # Merchant Category Code, Currency, Country Code
+    payload += format_tlv("52", "0000")              # MCC
+    payload += format_tlv("53", "704")               # Currency: VND
+    payload += format_tlv("58", "VN")                # Country Code
 
-    # Checksum (CRC16 CCITT)
+    # Additional Data Field (thông tin chuyển khoản)
+    payload += format_tlv("62", format_tlv("08", add_info))
+
+    # CRC Checksum
     payload += format_tlv("63", crc16_ccitt(payload + "6304"))
 
     return payload
@@ -56,8 +65,8 @@ def generate_qr_with_logo(payload):
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo_size = int(qr_img.width * 0.15)
-    logo = logo.resize((logo_size * 3, logo_size))
+    logo_size = int(qr_img.width * 0.25)
+    logo = logo.resize(int(img_qr.size[0] * 0.45), int(img_qr.size[1] * 0.15))
     pos = ((qr_img.width - logo_size) // 2, (qr_img.height - logo_size) // 2)
     qr_img.paste(logo, pos, mask=logo)
 
