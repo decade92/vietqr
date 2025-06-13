@@ -66,7 +66,7 @@ def generate_qr_with_logo(payload):
 
     logo = Image.open(LOGO_PATH).convert("RGBA")
     logo_size = int(qr_img.width * 0.25)
-    logo = logo.resize(int(img_qr.size[0] * 0.45), int(img_qr.size[1] * 0.15))
+    logo = logo.resize(int(qr_img.size[0] * 0.45), int(qr_img.size[1] * 0.15))
     pos = ((qr_img.width - logo_size) // 2, (qr_img.height - logo_size) // 2)
     qr_img.paste(logo, pos, mask=logo)
 
