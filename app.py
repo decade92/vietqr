@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 # === CẤU HÌNH CỐ ĐỊNH ===
-ASSETS_DIR = os.path.join(os.path.dirname(__file__), "../assets")
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 BACKGROUND_PATH = os.path.join(ASSETS_DIR, "background.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "DejaVuSans-Bold.ttf")
