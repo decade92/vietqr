@@ -60,4 +60,5 @@ if st.button("🎉 Tạo ảnh QR"):
     else:
         payload = build_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip())
         qr_img = generate_qr_with_logo(payload)
-        st.image(qr_img, caption="🎯 QR Code với logo", use_column_width=False)
+        st.image(qr_img, caption="🎯 QR Code với logo", use_container_width=False)
+
