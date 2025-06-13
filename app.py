@@ -65,7 +65,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
     pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
     img_qr.paste(logo, pos, mask=logo)
 
-    lines = [("Tên tài khoản:", 28), (acc_name.upper(), 34), ("Tài khoản định danh:", 28), (merchant_.upper(), 34)]
+    lines = [("Tên tài khoản:", 28), (acc_name.upper(), 34), ("Tài khoản định danh:", 28), (merchant_id.upper(), 34)]
     spacing = 12
     total_text_height = sum([s for (_, s) in lines]) + spacing * (len(lines) - 1)
     canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 30), "white")
