@@ -25,23 +25,29 @@ def crc16_ccitt(data: str) -> str:
 def build_payload(merchant_id, bank_bin, add_info):
     payload = ''
     payload += format_tlv("00", "01")  # Payload Format Indicator
-    payload += format_tlv("01", "11")  # Point of Initiation Method (11 = dynamic)
+    payload += format_tlv("01", "11")  # Point of Initiation Method: dynamic
 
-    # Merchant Account Information – tag 38
-    vietqr_info = ''
-    vietqr_info += format_tlv("00", "A000000727")      # Application ID (NAPAS)
-    vietqr_info += format_tlv("01", bank_bin.strip())  # Bank BIN (6 số)
-    vietqr_info += format_tlv("02", merchant_id.strip())  # Số tài khoản định danh
-    vietqr_info += format_tlv("03", "QRIBFTTA")        # Transaction Type
+    # === Merchant Account Information (tag 38 - VietQR) ===
+    acc_info = ''
+    acc_info += format_tlv("00", "A000000727")          # Application ID
+    acc_info += format_tlv("01", bank_bin.strip())      # Bank BIN
+    acc_info += format_tlv("02", merchant_id.strip())   # Account number
+    acc_info += format_tlv("03", "QRIBFTTA")            # Transaction type
 
-    payload += format_tlv("38", vietqr_info)
-    payload += format_tlv("52", "0000")                # Merchant Category Code
-    payload += format_tlv("53", "704")                 # Currency: VND
-    payload += format_tlv("58", "VN")                  # Country Code: Vietnam
-    payload += format_tlv("62", format_tlv("08", add_info.strip()))  # Additional Info
-    payload += format_tlv("63", crc16_ccitt(payload + "6304"))       # CRC checksum
+    payload += format_tlv("38", acc_info)               # Embed into Tag 38
+
+    payload += format_tlv("52", "0000")                 # Merchant Category Code
+    payload += format_tlv("53", "704")                  # Currency: VND
+    payload += format_tlv("58", "VN")                   # Country Code: Vietnam
+
+    if add_info.strip():
+        payload += format_tlv("62", format_tlv("08", add_info.strip()))  # Additional Info
+
+    # === CRC Checksum ===
+    payload += format_tlv("63", crc16_ccitt(payload + "6304"))
 
     return payload
+
 
 
 def generate_qr_with_logo(payload):
