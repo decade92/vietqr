@@ -21,29 +21,33 @@ def crc16_ccitt(data: str) -> str:
             crc &= 0xFFFF
     return format(crc, '04X')
 
-def build_payload(merchant_id, bank_bin, add_info, account_type="personal"):
+def build_payload(merchant_id, bank_bin, add_info):
     payload = ''
     payload += format_tlv("00", "01")  # Payload Format Indicator
-    payload += format_tlv("01", "11")  # Point of Initiation Method
+    payload += format_tlv("01", "11")  # Point of Initiation Method (static)
 
-    # === Merchant Account Info ===
-    acc_info = ''
-    acc_info += format_tlv("00", "A000000727")          # App ID
-    acc_info += format_tlv("01", bank_bin.strip())      # Bank BIN
-    acc_info += format_tlv("02", merchant_id.strip())   # Merchant Account
-    acc_info += format_tlv("03", "QRIBFTTA")            # Type
-    acc_info += format_tlv("04", "0208" if account_type == "personal" else "0308")  # Account Type
+    # Tài khoản ngân hàng hoặc ví điện tử
+    acc_type = "0208" if len(merchant_id) <= 20 else "0308"
 
+    # 38: Merchant Account Information (AID)
+    acc_info = (
+        format_tlv("00", "A000000727") +
+        format_tlv("01", acc_type + bank_bin + f"{len(merchant_id):02d}" + merchant_id) +
+        format_tlv("02", "QRIBFTTA")
+    )
     payload += format_tlv("38", acc_info)
-    payload += format_tlv("52", "0000")
-    payload += format_tlv("53", "704")
-    payload += format_tlv("58", "VN")
 
-    if add_info.strip():
-        payload += format_tlv("62", format_tlv("08", add_info.strip()))
+    # Mã MCC (Merchant Category Code), mã tiền tệ, quốc gia, thông tin bổ sung
+    payload += format_tlv("52", "0000")  # MCC
+    payload += format_tlv("53", "704")   # Currency: VND
+    payload += format_tlv("58", "VN")    # Country: Vietnam
+    payload += format_tlv("62", format_tlv("08", add_info))  # Additional Data Field
 
+    # Checksum (CRC16 CCITT)
     payload += format_tlv("63", crc16_ccitt(payload + "6304"))
+
     return payload
+
 
 def generate_qr_with_logo(payload):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
