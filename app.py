@@ -66,14 +66,16 @@ def generate_qr_with_logo(payload):
 
     logo = Image.open(LOGO_PATH).convert("RGBA")
 
-# Kích thước logo chiếm ~45% chiều rộng và 15% chiều cao QR
-logo_width = int(qr_img.width * 0.45)
-logo_height = int(qr_img.height * 0.15)
-logo = logo.resize((logo_width, logo_height))  # ✅ Phải là một tuple
+    # Kích thước logo chiếm ~45% chiều rộng và 15% chiều cao QR
+    logo_width = int(qr_img.width * 0.45)
+    logo_height = int(qr_img.height * 0.15)
+    logo = logo.resize((logo_width, logo_height))  # ✅ Resize bằng tuple
 
-# Canh giữa logo trên QR
-pos = ((qr_img.width - logo_width) // 2, (qr_img.height - logo_height) // 2)
-qr_img.paste(logo, pos, mask=logo)
+    # Canh giữa logo trên QR
+    pos = ((qr_img.width - logo_width) // 2, (qr_img.height - logo_height) // 2)
+    qr_img.paste(logo, pos, mask=logo)
+
+    return qr_img
 
 # ==== STREAMLIT UI ====
 st.title("🇻🇳 Tạo VietQR chuyển khoản")
