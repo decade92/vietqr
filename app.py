@@ -65,10 +65,15 @@ def generate_qr_with_logo(payload):
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo_size = int(qr_img.width * 0.25)
-    logo = logo.resize(int(qr_img.size[0] * 0.45), int(qr_img.size[1] * 0.15))
-    pos = ((qr_img.width - logo_size) // 2, (qr_img.height - logo_size) // 2)
-    qr_img.paste(logo, pos, mask=logo)
+
+# Kích thước logo chiếm ~45% chiều rộng và 15% chiều cao QR
+logo_width = int(qr_img.width * 0.45)
+logo_height = int(qr_img.height * 0.15)
+logo = logo.resize((logo_width, logo_height))  # ✅ Phải là một tuple
+
+# Canh giữa logo trên QR
+pos = ((qr_img.width - logo_width) // 2, (qr_img.height - logo_height) // 2)
+qr_img.paste(logo, pos, mask=logo)
 
     return qr_img
 
