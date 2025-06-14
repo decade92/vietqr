@@ -169,31 +169,19 @@ font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
 st.markdown(font_css, unsafe_allow_html=True)
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
 col1, col2 = st.columns([1, 10])
-
-with col1:
-    # Tải logo
-    logo = Image.open("assets/logo_bidv.png").convert("RGBA")
-    logo.thumbnail((9999, 60))  # Chỉ giới hạn chiều cao 40px, chiều rộng tự co theo tỉ lệ
-    buf = io.BytesIO()
-    logo.save(buf, format="PNG")
-    st.image(buf.getvalue())  # Hiển thị ảnh giữ đúng tỉ lệ
-
-with col2:
-    # Sử dụng markdown + HTML + CSS để hiển thị chữ với màu và font mong muốn
-    st.markdown(
-        f"""
-        <p style='font-family: Roboto, sans-serif; 
-                  font-weight: bold; 
-                  font-size: 30px; 
-                  color: #007C71; 
-                  margin-top: 10px; 
-                  margin-bottom: 20px;'>
+st.markdown(
+    """
+    <div style="display: flex; align-items: center;">
+        <img src="data:image/png;base64,{logo_data}" style="max-height:40px; height:40px; width:auto; margin-right:10px;; margin-top:10px;; margin-bottom:10px;">
+        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:20px; color:#007C71;">
             Dành riêng cho BIDV Thái Bình - PGD Tiền Hải
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
+        </span>
+    </div>
+    """.format(
+        logo_data=base64.b64encode(open("assets/logo_bidv.png", "rb").read()).decode()
+    ),
+    unsafe_allow_html=True
+)
 
 merchant_id = st.text_input("🔢 Số tài khoản định danh:")
 acc_name = st.text_input("👤 Tên tài khoản (tuỳ chọn):")
