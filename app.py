@@ -6,7 +6,7 @@ import os
 
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
-FONT_PATH = os.path.join(ASSETS_DIR, "DejaVuSans-Bold.ttf")
+FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
 
 def format_tlv(tag, value):
