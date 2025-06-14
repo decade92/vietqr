@@ -150,15 +150,46 @@ def create_qr_with_background(data, acc_name, merchant_id):
 
 
 
+def local_font_to_css(path, font_name):
+    with open(path, "rb") as f:
+        font_data = f.read()
+        encoded = base64.b64encode(font_data).decode()
+        return f"""
+        <style>
+        @font-face {{
+            font-family: '{font_name}';
+            src: url(data:font/ttf;base64,{encoded}) format('truetype');
+        }}
+        </style>
+        """
 
+font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
+st.markdown(font_css, unsafe_allow_html=True)
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
-col1, col2 = st.columns([1, 5])  # Tỉ lệ: cột logo : cột chữ
+col1, col2 = st.columns([1, 12])
 
 with col1:
-    st.image("assets/logo_bidv.png", width=80)  # Điều chỉnh width theo logo
+    # Tải logo
+    logo = Image.open("assets/logo_bidv.png")
+    # Resize logo vừa chiều cao font 20px (~40px pixel ảnh)
+    logo = logo.resize((80, 40))  # Điều chỉnh nếu font cao hơn/thấp hơn
+    st.image(logo)
 
 with col2:
-    st.markdown("Dành riêng BIDV Thái Bình - PGD Tiền Hải")
+    # Sử dụng markdown + HTML + CSS để hiển thị chữ với màu và font mong muốn
+    st.markdown(
+        f"""
+        <p style='font-family: Roboto, sans-serif; 
+                  font-weight: bold; 
+                  font-size: 20px; 
+                  color: #007C71; 
+                  margin-top: 10px; 
+                  margin-bottom: 0px;'>
+            Tạo ảnh QR VietQR chuẩn NAPAS có logo & nền
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 merchant_id = st.text_input("🔢 Số tài khoản định danh:")
