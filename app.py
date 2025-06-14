@@ -64,8 +64,8 @@ def generate_qr_with_logo(data):
 def create_qr_with_text(data, acc_name, merchant_id):
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=11,
-        border=2
+        box_size=21,
+        border=4
     )
     qr.add_data(data)
     qr.make(fit=True)
@@ -73,7 +73,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
 
     # Dán logo vào giữa QR
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo = logo.resize((int(img_qr.width * 0.45), int(img_qr.height * 0.15)))
+    logo = logo.resize((int(img_qr.width * 0.9), int(img_qr.height * 0.3)))
     pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
     img_qr.paste(logo, pos, mask=logo)
 
@@ -88,7 +88,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
     total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
 
     # Tạo canvas để chứa QR + text
-    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 30), "white")
+    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 50), "white")
     canvas.paste(img_qr, (0, 0))
 
     # Vẽ text
