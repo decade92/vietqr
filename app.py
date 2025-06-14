@@ -121,18 +121,18 @@ def create_qr_with_background(data, acc_name, merchant_id):
         return (base.width - text_width) // 2
 
     # Nội dung
-    label_1 = "Tên tài khoản:"
+   # label_1 = "Tên tài khoản:"
     value_1 = acc_name.upper()
-    label_2 = "Tài khoản định danh:"
+  #  label_2 = "Tài khoản định danh:"
     value_2 = merchant_id
 
     # Vẽ nền trắng đủ rộng phía dưới
-    draw.rectangle([(460, 1600), (1000, 2000)], fill="white")
+   # draw.rectangle([(460, 1600), (1000, 2000)], fill="white")
 
     # Vẽ các dòng text, căn giữa toàn ảnh
-    draw.text((center_x(label_1, font1), 1650), label_1, fill=(0, 102, 102), font=font1)
+   # draw.text((center_x(label_1, font1), 1650), label_1, fill=(0, 102, 102), font=font1)
     draw.text((center_x(value_1, font2), 1710), value_1, fill=(0, 102, 102), font=font2)
-    draw.text((center_x(label_2, font1), 1800), label_2, fill=(0, 102, 102), font=font1)
+ #   draw.text((center_x(label_2, font1), 1800), label_2, fill=(0, 102, 102), font=font1)
     draw.text((center_x(value_2, font2), 1860), value_2, fill=(0, 102, 102), font=font2)
 
     buf = BytesIO()
