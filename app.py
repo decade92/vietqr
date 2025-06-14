@@ -79,21 +79,21 @@ def create_qr_with_text(data, acc_name, merchant_id):
 
     # 4 dòng text hiển thị
     lines = [
-        ("Tên tài khoản:", 28, "black"),
-        (acc_name.upper(), 34, "#007C71"),
-        ("Tài khoản định danh:", 28, "black"),
-        (merchant_id, 34, "#007C71")
+        ("Tên tài khoản:", 40, "black"),
+        (acc_name.upper(), 48, "#007C71"),
+        ("Tài khoản định danh:", 40, "black"),
+        (merchant_id, 48, "#007C71")
     ]
     spacing = 12
     total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
 
     # Tạo canvas để chứa QR + text
-    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 50), "white")
+    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 65), "white")
     canvas.paste(img_qr, (0, 0))
 
     # Vẽ text
     draw = ImageDraw.Draw(canvas)
-    y = img_qr.height + 10
+    y = img_qr.height + 16
     for text, size, color in lines:
         font = ImageFont.truetype(FONT_PATH, size)
         text_width = draw.textbbox((0, 0), text, font=font)[2]
