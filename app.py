@@ -168,7 +168,7 @@ def local_font_to_css(path, font_name):
 font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
 st.markdown(font_css, unsafe_allow_html=True)
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
-col1, col2 = st.columns([1, 10])
+
 st.markdown(
     """
     <div style="display: flex; align-items: center;">
