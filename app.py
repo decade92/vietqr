@@ -79,12 +79,12 @@ def create_qr_with_text(data, acc_name, merchant_id):
 
     # 4 dòng text hiển thị
     lines = [
-        ("Tên tài khoản:", 40, "black"),
-        (acc_name.upper(), 48, "#007C71"),
-        ("Tài khoản định danh:", 40, "black"),
-        (merchant_id, 48, "#007C71")
+        ("Tên tài khoản:", 48, "black"),
+        (acc_name.upper(), 60, "#007C71"),
+        ("Tài khoản định danh:", 48, "black"),
+        (merchant_id, 60, "#007C71")
     ]
-    spacing = 25
+    spacing = 20
     total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
 
     # Tạo canvas để chứa QR + text
@@ -152,7 +152,14 @@ def create_qr_with_background(data, acc_name, merchant_id):
 
 
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
-st.title("🇻🇳 Dành riêng BIDV Thái Bình")
+col1, col2 = st.columns([1, 5])  # Tỉ lệ: cột logo : cột chữ
+
+with col1:
+    st.image("assets/logo_bidv.png", width=80)  # Điều chỉnh width theo logo
+
+with col2:
+    st.markdown("Dành riêng BIDV Thái Bình - PGD Tiền Hải")
+
 
 merchant_id = st.text_input("🔢 Số tài khoản định danh:")
 acc_name = st.text_input("👤 Tên tài khoản (tuỳ chọn):")
@@ -162,7 +169,7 @@ bank_bin = st.text_input("🏦 Mã ngân hàng (mặc định BIDV 970418):", "9
 
 if st.button("🎉 Tạo mã QR"):
     if not merchant_id:
-        st.warning("❗ Vui lòng nhập đầy đủ thông tin TK.")
+        st.warning("❗ Vui lòng nhập đầy đủ thông tin số tài khoản.")
     else:
         qr_data = build_vietqr_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip(), amount.strip())
         qr1 = generate_qr_with_logo(qr_data)
@@ -172,8 +179,8 @@ if st.button("🎉 Tạo mã QR"):
         st.subheader("📌 Mẫu 1: QR Rút gọn")
         st.image(qr1, caption="QR VietQR chuẩn")
 
-        st.subheader("🧾 Mẫu 2: QR có thông tin tài khoản bên dưới")
+        st.subheader("🧾 Mẫu 2: QR CÓ THÔNG TIN")
         st.image(qr2, caption="QR kèm tên và định danh")
 
-        st.subheader("🌅 Mẫu 3: QR mèo thân tài")
+        st.subheader("🌅 Mẫu 3: QR MÈO THẦN TÀI")
         st.image(qr3, caption="QR nền tùy chỉnh")
