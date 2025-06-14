@@ -97,29 +97,7 @@ def create_qr_with_background(data, acc_name, merchant_id):
     return buf
 
 
-def create_qr_with_background(data, merchant_id):
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
-    qr.add_data(data)
-    qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((540, 540))
 
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
-    qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), mask=logo)
-
-    base = Image.open(BG_PATH).convert("RGBA")
-    base.paste(qr_img, (460, 936), mask=qr_img)
-
-    draw = ImageDraw.Draw(base)
-    font1 = ImageFont.truetype(FONT_PATH, 45)
-    font2 = ImageFont.truetype(FONT_PATH, 60)
-    draw.rectangle([(460, 1580), (1000, 2000)], fill="white")
-    draw.text((490, 1650), "Tài khoản định danh:", fill=(0, 102, 102), font=font1)
-    draw.text((410, 1730), merchant_id, fill=(0, 102, 102), font=font2)
-
-    buf = BytesIO()
-    base.save(buf, format="PNG")
-    buf.seek(0)
-    return buf
 
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
 st.title("🇻🇳 Dành riêng BIDV Thái Bình")
