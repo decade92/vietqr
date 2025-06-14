@@ -8,7 +8,7 @@ import base64
 
 st.set_page_config(
     page_title="VietQR BIDV",
-    page_icon="assets/logo_bidv.png",  # hoặc emoji như "🏦"
+    page_icon="assets/bidvfa.png",  # hoặc emoji như "🏦"
     layout="centered"
 )
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
