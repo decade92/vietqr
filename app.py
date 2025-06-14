@@ -53,7 +53,51 @@ def generate_qr_with_logo(data):
     img_qr.save(buf, format="PNG")
     buf.seek(0)
     return buf
+def create_qr_with_text(data, acc_name, merchant_id):
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=11,
+        border=2
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
+    # Dán logo vào giữa QR
+    logo = Image.open(LOGO_PATH).convert("RGBA")
+    logo = logo.resize((int(img_qr.width * 0.45), int(img_qr.height * 0.15)))
+    pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
+    img_qr.paste(logo, pos, mask=logo)
+
+    # 4 dòng text hiển thị
+    lines = [
+        ("Tên tài khoản:", 28, "black"),
+        (acc_name.upper(), 34, "#007C71"),
+        ("Tài khoản định danh:", 28, "black"),
+        (merchant_id, 34, "#007C71")
+    ]
+    spacing = 12
+    total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
+
+    # Tạo canvas để chứa QR + text
+    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 30), "white")
+    canvas.paste(img_qr, (0, 0))
+
+    # Vẽ text
+    draw = ImageDraw.Draw(canvas)
+    y = img_qr.height + 10
+    for text, size, color in lines:
+        font = ImageFont.truetype(FONT_PATH, size)
+        text_width = draw.textbbox((0, 0), text, font=font)[2]
+        x = (canvas.width - text_width) // 2  # Căn giữa ngang
+        draw.text((x, y), text, fill=color, font=font)
+        y += size + spacing
+
+    # Trả về ảnh dạng BytesIO để hiển thị trên Streamlit
+    buf = BytesIO()
+    canvas.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 def create_qr_with_background(data, acc_name, merchant_id):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data)
@@ -115,7 +159,7 @@ if st.button("🎉 Tạo mã QR"):
         qr_data = build_vietqr_payload(merchant_id.strip(), bank_bin.strip(), add_info.strip(), amount.strip())
         qr1 = generate_qr_with_logo(qr_data)
         qr2 = create_qr_with_text(qr_data, acc_name, merchant_id)
-        qr3 = create_qr_with_background(qr_data, merchant_id)
+        qr3 = create_qr_with_background(qr_data, acc_name, merchant_id)
 
         st.subheader("📌 Mẫu 1: QR Rút gọn")
         st.image(qr1, caption="QR VietQR chuẩn")
