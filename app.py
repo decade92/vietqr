@@ -65,7 +65,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=21,
-        border=4
+        border=3
     )
     qr.add_data(data)
     qr.make(fit=True)
@@ -84,7 +84,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
         ("Tài khoản định danh:", 40, "black"),
         (merchant_id, 48, "#007C71")
     ]
-    spacing = 20
+    spacing = 25
     total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
 
     # Tạo canvas để chứa QR + text
