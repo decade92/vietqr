@@ -6,6 +6,11 @@ from io import BytesIO
 import os
 import base64
 
+st.set_page_config(
+    page_title="VietQR BIDV",
+    page_icon="assets/logo_bidv.png",  # hoặc emoji như "🏦"
+    layout="centered"
+)
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
@@ -167,11 +172,7 @@ def local_font_to_css(path, font_name):
 
 font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
 st.markdown(font_css, unsafe_allow_html=True)
-st.set_page_config(
-    page_title="VietQR BIDV",
-    page_icon="assets/logo_bidv.png",  # hoặc emoji như "🏦"
-    layout="centered"
-)
+
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
 
 st.markdown(
