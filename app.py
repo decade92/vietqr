@@ -3,6 +3,7 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import os
+import base64
 
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
