@@ -73,7 +73,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
 
     # Dán logo vào giữa QR
     logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo = logo.resize((int(img_qr.width * 0.9), int(img_qr.height * 0.3)))
+    logo = logo.resize((int(img_qr.width * 0.45), int(img_qr.height * 0.15)))
     pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
     img_qr.paste(logo, pos, mask=logo)
 
