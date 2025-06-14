@@ -167,14 +167,15 @@ def local_font_to_css(path, font_name):
 font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
 st.markdown(font_css, unsafe_allow_html=True)
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
-col1, col2 = st.columns([1, 12])
+col1, col2 = st.columns([1, 10])
 
 with col1:
     # Tải logo
-    logo = Image.open("assets/logo_bidv.png")
-    # Resize logo vừa chiều cao font 20px (~40px pixel ảnh)
-    logo = logo.resize((80, 40))  # Điều chỉnh nếu font cao hơn/thấp hơn
-    st.image(logo)
+    logo = Image.open("assets/logo_bidv.png").convert("RGBA")
+    logo.thumbnail((9999, 60))  # Chỉ giới hạn chiều cao 40px, chiều rộng tự co theo tỉ lệ
+    buf = io.BytesIO()
+    logo.save(buf, format="PNG")
+    st.image(buf.getvalue())  # Hiển thị ảnh giữ đúng tỉ lệ
 
 with col2:
     # Sử dụng markdown + HTML + CSS để hiển thị chữ với màu và font mong muốn
@@ -182,11 +183,11 @@ with col2:
         f"""
         <p style='font-family: Roboto, sans-serif; 
                   font-weight: bold; 
-                  font-size: 20px; 
+                  font-size: 30px; 
                   color: #007C71; 
                   margin-top: 10px; 
-                  margin-bottom: 0px;'>
-            Tạo ảnh QR VietQR chuẩn NAPAS có logo & nền
+                  margin-bottom: 20px;'>
+            Dành riêng cho BIDV Thái Bình - PGD Tiền Hải
         </p>
         """,
         unsafe_allow_html=True
