@@ -54,35 +54,48 @@ def generate_qr_with_logo(data):
     buf.seek(0)
     return buf
 
-def create_qr_with_text(data, acc_name, merchant_id):
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=11, border=2)
+def create_qr_with_background(data, acc_name, merchant_id):
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data)
     qr.make(fit=True)
-    img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((540, 540))
 
-    logo = Image.open(LOGO_PATH).convert("RGBA")
-    logo = logo.resize((int(img_qr.width * 0.45), int(img_qr.height * 0.15)))
-    pos = ((img_qr.width - logo.width) // 2, (img_qr.height - logo.height) // 2)
-    img_qr.paste(logo, pos, mask=logo)
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), mask=logo)
 
-    lines = [("Tên tài khoản:", 28), (acc_name.upper(), 34), ("Tài khoản định danh:", 28), (merchant_id.upper(), 34)]
-    spacing = 12
-    total_text_height = sum([s for (_, s) in lines]) + spacing * (len(lines) - 1)
-    canvas = Image.new("RGBA", (img_qr.width, img_qr.height + total_text_height + 30), "white")
-    canvas.paste(img_qr, (0, 0))
-    draw = ImageDraw.Draw(canvas)
-    y = img_qr.height + 10
+    base = Image.open(BG_PATH).convert("RGBA")
+    base.paste(qr_img, (460, 936), mask=qr_img)
 
-    for text, size in lines:
-        font = ImageFont.truetype(FONT_PATH, size)
-        w = draw.textbbox((0, 0), text, font=font)[2]
-        draw.text(((canvas.width - w) // 2, y), text, fill="#007C71", font=font)
-        y += size + spacing
+    draw = ImageDraw.Draw(base)
+    font1 = ImageFont.truetype(FONT_PATH, 45)
+    font2 = ImageFont.truetype(FONT_PATH, 60)
+
+    # Căn giữa toàn ảnh theo chiều ngang
+    def center_x(text, font):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        return (base.width - text_width) // 2
+
+    # Nội dung
+    label_1 = "Tên tài khoản:"
+    value_1 = acc_name.upper()
+    label_2 = "Tài khoản định danh:"
+    value_2 = merchant_id
+
+    # Vẽ nền trắng đủ rộng phía dưới
+    draw.rectangle([(0, 1500), (base.width, 2000)], fill="white")
+
+    # Vẽ các dòng text, căn giữa toàn ảnh
+    draw.text((center_x(label_1, font1), 1520), label_1, fill=(0, 102, 102), font=font1)
+    draw.text((center_x(value_1, font2), 1580), value_1, fill=(0, 102, 102), font=font2)
+    draw.text((center_x(label_2, font1), 1680), label_2, fill=(0, 102, 102), font=font1)
+    draw.text((center_x(value_2, font2), 1740), value_2, fill=(0, 102, 102), font=font2)
 
     buf = BytesIO()
-    canvas.save(buf, format="PNG")
+    base.save(buf, format="PNG")
     buf.seek(0)
     return buf
+
 
 def create_qr_with_background(data, merchant_id):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
