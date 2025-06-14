@@ -1,6 +1,7 @@
 import streamlit as st
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
+import io
 from io import BytesIO
 import os
 import base64
