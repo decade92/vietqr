@@ -20,6 +20,14 @@ def crc16_ccitt(data: str) -> str:
             crc = (crc << 1) ^ 0x1021 if (crc & 0x8000) else crc << 1
             crc &= 0xFFFF
     return f"{crc:04X}"
+def round_corners(image, radius):
+    """Trả về ảnh được bo góc với bán kính radius"""
+    rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    mask = Image.new("L", image.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rounded_rectangle([0, 0, image.size[0], image.size[1]], radius=radius, fill=255)
+    rounded.paste(image, (0, 0), mask=mask)
+    return rounded
 
 def build_vietqr_payload(merchant_id, bank_bin, add_info, amount=""):
     payload = ""
