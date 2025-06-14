@@ -131,9 +131,9 @@ def create_qr_with_background(data, acc_name, merchant_id):
 
     # Vẽ các dòng text, căn giữa toàn ảnh
    # draw.text((center_x(label_1, font1), 1650), label_1, fill=(0, 102, 102), font=font1)
-    draw.text((center_x(value_1, font2), 1710), value_1, fill=(0, 102, 102), font=font2)
+    draw.text((center_x(value_1, font2), 1650), value_1, fill=(0, 102, 102), font=font2)
  #   draw.text((center_x(label_2, font1), 1800), label_2, fill=(0, 102, 102), font=font1)
-    draw.text((center_x(value_2, font2), 1860), value_2, fill=(0, 102, 102), font=font2)
+    draw.text((center_x(value_2, font2), 1800), value_2, fill=(0, 102, 102), font=font2)
 
     buf = BytesIO()
     base.save(buf, format="PNG")
