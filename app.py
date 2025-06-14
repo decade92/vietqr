@@ -127,7 +127,7 @@ def create_qr_with_background(data, acc_name, merchant_id):
     value_2 = merchant_id
 
     # Vẽ nền trắng đủ rộng phía dưới
-    draw.rectangle([(0, 1500), (base.width, 2000)], fill="white")
+    draw.rectangle([(460, 1500), (1000, 2000)], fill="white")
 
     # Vẽ các dòng text, căn giữa toàn ảnh
     draw.text((center_x(label_1, font1), 1520), label_1, fill=(0, 102, 102), font=font1)
