@@ -172,8 +172,8 @@ col1, col2 = st.columns([1, 10])
 st.markdown(
     """
     <div style="display: flex; align-items: center;">
-        <img src="data:image/png;base64,{logo_data}" style="max-height:40px; height:40px; width:auto; margin-right:10px;; margin-top:10px;; margin-bottom:10px;">
-        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:24px; color:#007C71;">
+        <img src="data:image/png;base64,{logo_data}" style="max-height:40px; height:40px; width:auto; margin-right:10px;; margin-top:0px;; margin-bottom:30px;">
+        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:28px; color:#007C71;">
             Dành riêng cho BIDV Thái Bình - PGD Tiền Hải
         </span>
     </div>
