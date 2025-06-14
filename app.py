@@ -167,6 +167,11 @@ def local_font_to_css(path, font_name):
 
 font_css = local_font_to_css("assets/Roboto-Bold.ttf", "RobotoCustom")
 st.markdown(font_css, unsafe_allow_html=True)
+st.set_page_config(
+    page_title="VietQR BIDV",
+    page_icon="assets/logo_bidv.png",  # hoặc emoji như "🏦"
+    layout="centered"
+)
 st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS ")
 
 st.markdown(
