@@ -179,20 +179,17 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
         if info.get("bank_bin") != "970418":
             st.error("⚠️ Ứng dụng chỉ hỗ trợ QR từ BIDV (Mã BIN: 970418).")
         else:
-            for key, default in {
-                "account": "",
-                "bank_bin": "970418",
-                "note": "",
-                "amount": "",
-                "name": "",
-                "store": "",
-            }.items():
-                if key not in st.session_state or not st.session_state[key]:
-                    st.session_state[key] = info.get(key, default)
+            # 🚨 Ghi đè toàn bộ các trường bằng dữ liệu trích xuất từ ảnh QR
+            st.session_state["account"] = info.get("account", "")
+            st.session_state["bank_bin"] = info.get("bank_bin", "970418")
+            st.session_state["note"] = info.get("note", "")
+            st.session_state["amount"] = info.get("amount", "")
+            st.session_state["name"] = info.get("name", "")
+            st.session_state["store"] = info.get("store", "")
             st.success("✅ Đã trích xuất dữ liệu từ ảnh QR.")
-
     else:
         st.warning("⚠️ Không thể nhận diện được mã QR từ ảnh đã tải lên.")
+
 
 account = st.text_input("🔢 Số tài khoản", value=st.session_state.get("account", ""), key="account")
 name = st.text_input("👤 Tên tài khoản (nếu có)", value=st.session_state.get("name", ""), key="name")
