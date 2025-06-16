@@ -166,12 +166,22 @@ if os.path.exists(FONT_PATH):
     """
     st.markdown(font_css, unsafe_allow_html=True)
 
-st.title("🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS")
+st.markdown(
+"""
+    <div style="display: flex; align-items: center;">
+        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:20px; color:white;">
+            "🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS")
+        </span>
+    </div>
+    """
+    ),
+    unsafe_allow_html=True
+)
 st.markdown(
     """
     <div style="display: flex; align-items: center;">
-        <img src="data:image/png;base64,{logo_data}" style="max-height:25px; height:25px; width:auto; margin-right:10px;">
-        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:25px; color:#007C71;">
+        <img src="data:image/png;base64,{logo_data}" style="max-height:20px; height:20px; width:auto; margin-right:10px;">
+        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:20px; color:#007C71;">
             Dành riêng cho BIDV Thái Bình - PGD Tiền Hải
         </span>
     </div>
@@ -181,7 +191,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("**📥 Nhập thông tin chuyển khoản**")
 
 uploaded_result = st.file_uploader("📤 Tải ảnh QR VietQR", type=["png", "jpg", "jpeg"], key="uploaded_file")
 if uploaded_result and uploaded_result != st.session_state.get("last_file_uploaded"):
