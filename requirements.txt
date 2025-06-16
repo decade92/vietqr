@@ -1,6 +1,5 @@
 streamlit
+opencv-python-headless
+numpy
 qrcode
 Pillow
-numpy
-pyzbar
-opencv-python-headless==4.9.0.80
