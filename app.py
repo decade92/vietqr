@@ -138,7 +138,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
 
     # Vẽ "Tên cửa hàng" (nếu có)
     if store_name:
-        draw.text((center_x(store_name.upper(), font_store), 1550), store_name.upper(), fill="#007C71", font=font_store)
+        draw.text((center_x(store_name.upper(), font_store), 250), store_name.upper(), fill="#007C71", font=font_store)
 
     # Nội dung
     value_1 = acc_name.upper()
