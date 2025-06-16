@@ -169,7 +169,7 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id):
     qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), mask=logo)
 
     base = Image.open(BG_THAI_PATH).convert("RGBA")
-    base.paste(qr_img, (460, 936), mask=qr_img)
+    base.paste(qr_img, (660, 736), mask=qr_img)
 
     draw = ImageDraw.Draw(base)
     font1 = ImageFont.truetype(FONT_PATH, 45)
