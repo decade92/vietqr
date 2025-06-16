@@ -15,6 +15,7 @@ ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
+BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
 
 def format_tlv(tag, value):
     return f"{tag}{len(value):02d}{value}"
@@ -130,7 +131,38 @@ def create_qr_with_background(data, acc_name, merchant_id):
     font2 = ImageFont.truetype(FONT_PATH, 60)
 
     # Căn giữa toàn ảnh theo chiều ngang
+    
+def create_qr_with_background_thantai(data, acc_name, merchant_id):
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
+    qr.add_data(data)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((540, 540))
+    qr_img = round_corners(qr_img, radius=40)
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), mask=logo)
+
+    base = Image.open(BG_THAI_PATH).convert("RGBA")
+    base.paste(qr_img, (460, 936), mask=qr_img)
+
+    draw = ImageDraw.Draw(base)
+    font1 = ImageFont.truetype(FONT_PATH, 45)
+    font2 = ImageFont.truetype(FONT_PATH, 60)
+
     def center_x(text, font):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return (base.width - (bbox[2] - bbox[0])) // 2
+
+    value_1 = acc_name.upper()
+    value_2 = merchant_id
+
+    draw.text((center_x(value_1, font2), 1665), value_1, fill=(0, 102, 102), font=font2)
+    draw.text((center_x(value_2, font2), 1815), value_2, fill=(0, 102, 102), font=font2)
+
+    buf = BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+def center_x(text, font):
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         return (base.width - text_width) // 2
@@ -212,3 +244,7 @@ if st.button("🎉 Tạo mã QR"):
 
         st.subheader("🌅 Mẫu 3: QR MÈO THẦN TÀI")
         st.image(qr3, caption="QR nền tùy chỉnh")
+        qr4 = create_qr_with_background_thantai(qr_data, acc_name, merchant_id)
+        st.subheader("🐯 Mẫu 4: QR MÈO THẦN TÀI - PHIÊN BẢN KHÁC")
+        st.image(qr4, caption="QR nền mèo thần tài khác")
+
