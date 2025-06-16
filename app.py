@@ -226,8 +226,9 @@ merchant_id = st.text_input("🔢 Số tài khoản định danh:")
 acc_name = st.text_input("👤 Tên tài khoản (tuỳ chọn):")
 add_info = st.text_input("📝 Nội dung chuyển khoản (tuỳ chọn):")
 amount = st.text_input("💵 Số tiền (tuỳ chọn):", "")
-bank_bin = st.text_input("🏦 Mã ngân hàng (mặc định BIDV 970418):", "970418")
 store_name = st.text_input("🏪 Tên cửa hàng (tuỳ chọn):")
+bank_bin = st.text_input("🏦 Mã ngân hàng (mặc định BIDV 970418):", "970418")
+
 
 if st.button("🎉 Tạo mã QR"):
     if not merchant_id:
