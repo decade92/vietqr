@@ -166,17 +166,19 @@ if os.path.exists(FONT_PATH):
     """
     st.markdown(font_css, unsafe_allow_html=True)
 
+# Tiêu đề 1: Tên ứng dụng
 st.markdown(
-"""
-    <div style="display: flex; align-items: center;">
-        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size:20px; color:white;">
-            "🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS")
+    """
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+        <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size: 22px; color: white;">
+            🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS
         </span>
     </div>
-    """
-    ),
+    """,
     unsafe_allow_html=True
 )
+
+# Tiêu đề 2: BIDV Thái Bình + logo
 st.markdown(
     """
     <div style="display: flex; align-items: center;">
