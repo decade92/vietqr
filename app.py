@@ -197,6 +197,17 @@ store = st.text_input("🏪 Tên cửa hàng (nếu có)", value=st.session_stat
 note = st.text_input("📝 Nội dung (nếu có)", value=st.session_state.get("note", ""), key="note")
 amount = st.text_input("💵 Số tiền (nếu có)", value=st.session_state.get("amount", ""), key="amount")
 bank_bin = st.text_input("🏦 Mã ngân hàng (BIDV: 970418)", value=st.session_state.get("bank_bin", "970418"), key="bank_bin")
+# === Theo dõi nhập số tài khoản thủ công và reset các trường liên quan ===
+if "last_account" not in st.session_state:
+    st.session_state["last_account"] = account
+
+if account != st.session_state["last_account"]:
+    # Người dùng đã thay đổi STK thủ công → reset các trường khác
+    st.session_state["note"] = ""
+    st.session_state["amount"] = ""
+    st.session_state["name"] = ""
+    st.session_state["store"] = ""
+    st.session_state["last_account"] = account
 
 if st.button("🎉 Tạo mã QR"):
     if not account.strip():
