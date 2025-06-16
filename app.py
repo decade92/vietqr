@@ -175,7 +175,7 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
     st.session_state["last_file_uploaded"] = uploaded_result
     qr_text = decode_qr_image_cv(uploaded_result)
     if qr_text:
-    info = extract_vietqr_info(qr_text)
+        info = extract_vietqr_info(qr_text)
         if info.get("bank_bin") != "970418":
             st.error("⚠️ Ứng dụng chỉ hỗ trợ QR từ BIDV (Mã BIN: 970418).")
         else:
