@@ -169,7 +169,7 @@ if os.path.exists(FONT_PATH):
 # Tiêu đề 1: Tên ứng dụng
 st.markdown(
     """
-    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+    <div style="display: flex; align-items: center; justify-content: left; margin-bottom: 10px;">
         <span style="font-family: Roboto, sans-serif; font-weight: bold; font-size: 22px; color: white;">
             🇻🇳 Tạo ảnh VietQR đẹp chuẩn NAPAS
         </span>
