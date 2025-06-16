@@ -131,7 +131,7 @@ def create_qr_with_background(data, acc_name, merchant_id):
     font2 = ImageFont.truetype(FONT_PATH, 60)
 
     # Căn giữa toàn ảnh theo chiều ngang
-        buf = BytesIO()
+    buf = BytesIO()
     base.save(buf, format="PNG")
     buf.seek(0)
     return buf
