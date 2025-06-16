@@ -4,7 +4,20 @@ from PIL import Image, ImageDraw, ImageFont
 import io, os, base64, cv2, numpy as np
 
 st.set_page_config(page_title="VietQR BIDV", page_icon="assets/bidvfa.png", layout="centered")
-
+st.markdown(
+    """
+    <style>
+    /* Xoá khoảng trắng trên cùng */
+    .block-container {
+        padding-top: 0rem;
+    }
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
