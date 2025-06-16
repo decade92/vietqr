@@ -120,7 +120,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((540, 540))
     qr_img = round_corners(qr_img, radius=40)
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((255, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), mask=logo)
 
     base = Image.open(BG_PATH).convert("RGBA")
