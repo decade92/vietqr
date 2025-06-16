@@ -240,7 +240,7 @@ bank_bin = ''.join(st.session_state.get("bank_bin", "970418").split())
 amount = ''.join(str(st.session_state.get("amount", "")).split())
 merchant_id = ''.join(account.split())  # nếu bạn dùng account làm merchant_id
 # Xử lý đầu vào số tiền
-amount_input_raw = st.text_input("💰 Số tiền", value=st.session_state.get("amount", ""), key="amount_input")
+amount_input_raw = st.text_input("💰 Số tiền (nếu có)", value=st.session_state.get("amount", ""), key="amount_input")
 amount_cleaned = clean_amount_input(amount_input_raw)
 
 if amount_input_raw and amount_cleaned is None:
