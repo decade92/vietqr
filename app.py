@@ -162,7 +162,7 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id):
     base.save(buf, format="PNG")
     buf.seek(0)
     return buf
-def center_x(text, font):
+    def center_x(text, font):
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         return (base.width - text_width) // 2
