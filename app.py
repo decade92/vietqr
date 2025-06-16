@@ -237,14 +237,14 @@ if st.button("🎉 Tạo mã QR"):
         qr3 = create_qr_with_background(qr_data, acc_name, merchant_id)
 
         st.subheader("📌 Mẫu 1: QR Rút gọn")
-        st.image(qr1, caption="QR VietQR chuẩn")
+        st.image(qr1, caption="QR VietQR chuẩn", format="PNG")
 
         st.subheader("🧾 Mẫu 2: QR CÓ THÔNG TIN")
-        st.image(qr2, caption="QR kèm tên và định danh")
+        st.image(qr2, caption="QR kèm tên và định danh", format="PNG")
 
         st.subheader("🌅 Mẫu 3: QR MÈO THẦN TÀI")
-        st.image(qr3, caption="QR nền mèo thần tài")
+        st.image(qr3, caption="QR nền mèo thần tài", format="PNG")
         qr4 = create_qr_with_background_thantai(qr_data, acc_name, merchant_id)
         st.subheader("🐯 Mẫu 4: QR THẦN TÀI")
-        st.image(qr4, caption="QR nền thần tài")
+        st.image(qr4, caption="QR nền thần tài", format="PNG")
 
