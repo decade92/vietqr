@@ -131,7 +131,34 @@ def create_qr_with_background(data, acc_name, merchant_id):
     font2 = ImageFont.truetype(FONT_PATH, 60)
 
     # Căn giữa toàn ảnh theo chiều ngang
-    
+        buf = BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+    def center_x(text, font):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        return (base.width - text_width) // 2
+
+    # Nội dung
+   # label_1 = "Tên tài khoản:"
+    value_1 = acc_name.upper()
+  #  label_2 = "Tài khoản định danh:"
+    value_2 = merchant_id
+
+    # Vẽ nền trắng đủ rộng phía dưới
+   # draw.rectangle([(460, 1600), (1000, 2000)], fill="white")
+
+    # Vẽ các dòng text, căn giữa toàn ảnh
+   # draw.text((center_x(label_1, font1), 1650), label_1, fill=(0, 102, 102), font=font1)
+    draw.text((center_x(value_1, font2), 1665), value_1, fill=(0, 102, 102), font=font2)
+ #   draw.text((center_x(label_2, font1), 1800), label_2, fill=(0, 102, 102), font=font1)
+    draw.text((center_x(value_2, font2), 1815), value_2, fill=(0, 102, 102), font=font2)
+
+    buf = BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 def create_qr_with_background_thantai(data, acc_name, merchant_id):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data)
@@ -152,20 +179,6 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id):
         bbox = draw.textbbox((0, 0), text, font=font)
         return (base.width - (bbox[2] - bbox[0])) // 2
 
-    value_1 = acc_name.upper()
-    value_2 = merchant_id
-
-    draw.text((center_x(value_1, font2), 1665), value_1, fill=(0, 102, 102), font=font2)
-    draw.text((center_x(value_2, font2), 1815), value_2, fill=(0, 102, 102), font=font2)
-
-    buf = BytesIO()
-    base.save(buf, format="PNG")
-    buf.seek(0)
-    return buf
-    def center_x(text, font):
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        return (base.width - text_width) // 2
 
     # Nội dung
    # label_1 = "Tên tài khoản:"
@@ -243,8 +256,8 @@ if st.button("🎉 Tạo mã QR"):
         st.image(qr2, caption="QR kèm tên và định danh")
 
         st.subheader("🌅 Mẫu 3: QR MÈO THẦN TÀI")
-        st.image(qr3, caption="QR nền mèo thần tài", format="PNG")
+        st.image(qr3, caption="QR nền mèo thần tài")
         qr4 = create_qr_with_background_thantai(qr_data, acc_name, merchant_id)
         st.subheader("🐯 Mẫu 4: QR THẦN TÀI")
-        st.image(qr4, caption="QR nền thần tài", format="PNG")
+        st.image(qr4, caption="QR nền thần tài")
 
