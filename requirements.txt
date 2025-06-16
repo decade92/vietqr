@@ -3,3 +3,4 @@ qrcode
 Pillow
 numpy
 pyzbar
+opencv-python
