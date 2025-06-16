@@ -175,12 +175,22 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
     st.session_state["last_file_uploaded"] = uploaded_result
     qr_text = decode_qr_image_cv(uploaded_result)
     if qr_text:
-        info = extract_vietqr_info(qr_text)
-        st.session_state["account"] = info.get("account", "")
-        st.session_state["bank_bin"] = info.get("bank_bin", "970418")
-        st.session_state["note"] = info.get("note", "")
-        st.session_state["amount"] = info.get("amount", "")
+    info = extract_vietqr_info(qr_text)
+    if info.get("bank_bin") != "970418":
+        st.error("⚠️ Ứng dụng chỉ hỗ trợ QR từ BIDV (Mã BIN: 970418).")
+    else:
+        for key, default in {
+            "account": "",
+            "bank_bin": "970418",
+            "note": "",
+            "amount": "",
+            "name": "",
+            "store": "",
+        }.items():
+            if key not in st.session_state or not st.session_state[key]:
+                st.session_state[key] = info.get(key, default)
         st.success("✅ Đã trích xuất dữ liệu từ ảnh QR.")
+
     else:
         st.warning("⚠️ Không thể nhận diện được mã QR từ ảnh đã tải lên.")
 
