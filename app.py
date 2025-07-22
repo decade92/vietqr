@@ -2,7 +2,6 @@ import streamlit as st
 import qrcode
 import cv2
 import numpy as np
-from pyzbar.pyzbar import decode as pyzbar_decode
 from PIL import Image, ImageDraw, ImageFont
 import io, os, base64, cv2, numpy as np
 
@@ -77,40 +76,24 @@ def extract_vietqr_info(payload):
     return info
 
 def decode_qr_image_cv(uploaded_image_bytes):
-    # Chuyển file ảnh bytes -> OpenCV image
     file_bytes = np.asarray(bytearray(uploaded_image_bytes.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    # Resize nếu ảnh nhỏ
+    # Resize lớn hơn nếu ảnh nhỏ
     h, w = image.shape[:2]
-    if max(h, w) < 800:
-        scale = 2
-        image = cv2.resize(image, (w*scale, h*scale), interpolation=cv2.INTER_LINEAR)
+    if min(h, w) < 600:
+        image = cv2.resize(image, (w*2, h*2), interpolation=cv2.INTER_LINEAR)
 
-    # Chuyển ảnh sang grayscale và làm mượt
+    # Chuyển về grayscale và làm nét nhẹ
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    sharpened = cv2.GaussianBlur(gray, (0,0), 3)
+    sharpened = cv2.addWeighted(gray, 1.5, sharpened, -0.5, 0)
 
-    # Dùng adaptive threshold để tăng độ tương phản cho vùng mã QR
-    thresh = cv2.adaptiveThreshold(
-        blurred, 255,
-        cv2.ADAPTIVE_THRESH_MEAN_C,
-        cv2.THRESH_BINARY, 11, 3
-    )
-
-    # Cách 1: Dùng cv2.QRCodeDetector
+    # Dò QR
     detector = cv2.QRCodeDetector()
-    data, points, _ = detector.detectAndDecode(thresh)
-    if data:
-        return data
+    data, _, _ = detector.detectAndDecode(sharpened)
 
-    # Cách 2: Dùng pyzbar nếu OpenCV không nhận
-    pil_img = Image.fromarray(thresh)
-    decoded_objects = pyzbar_decode(pil_img)
-    if decoded_objects:
-        return decoded_objects[0].data.decode('utf-8')
-
-    return None  # Không tìm thấy dữ liệu
+    return data if data else None
 
 def round_corners(image, radius):
     rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
