@@ -221,7 +221,7 @@ st.markdown(
 uploaded_result = st.file_uploader("📤 Tải ảnh QR VietQR", type=["png", "jpg", "jpeg"], key="uploaded_file")
 if uploaded_result and uploaded_result != st.session_state.get("last_file_uploaded"):
     st.session_state["last_file_uploaded"] = uploaded_result
-    qr_text = decode_qr_image_cv(uploaded_result)
+    qr_text = decode_qr_zxing_online(uploaded_result)
     if qr_text:
         info = extract_vietqr_info(qr_text)
         if info.get("bank_bin") != "970418":
