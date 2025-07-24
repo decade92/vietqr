@@ -100,12 +100,12 @@ def decode_qr_auto(uploaded_image):
     data, _, _ = detector.detectAndDecode(image_cv2)
     if data:
         try:
-            # Check nếu dữ liệu có cấu trúc TLV hợp lệ
             if data.startswith("00"):
-                _ = parse_tlv(data)  # <-- gọi thử hàm TLV
-                return data.strip(), "✅ Sử dụng OpenCV"
-        except:
-            pass  # dữ liệu không đủ hoặc sai -> fallback ZXing
+                _ = parse_tlv(data)  # Gọi thử để xác thực cấu trúc TLV
+                return data.strip(), "✅ Đọc bằng OpenCV"
+        except Exception as e:
+            # Nếu sai TLV, tiếp tục thử ZXing
+            st.info(f"⚠️ OpenCV phát hiện QR nhưng không hợp chuẩn TLV: {e}")
 
     # Step 2: ZXing fallback
     try:
@@ -122,12 +122,18 @@ def decode_qr_auto(uploaded_image):
             soup = BeautifulSoup(response.text, 'html.parser')
             result_tag = soup.find("pre")
             if result_tag:
-                return result_tag.text.strip(), "✅ Sử dụng ZXing"
+                zxing_data = result_tag.text.strip()
+                try:
+                    if zxing_data.startswith("00"):
+                        _ = parse_tlv(zxing_data)  # Xác thực TLV
+                        return zxing_data, "✅ Đọc bằng ZXing"
+                except Exception as e:
+                    return None, f"❌ ZXing đọc nhưng sai chuẩn TLV: {e}"
     except Exception as e:
         return None, f"❌ ZXing lỗi: {e}"
 
-    return None, "❌ Không đọc được QR"
-
+    return None, "❌ Không thể đọc QR bằng OpenCV hoặc ZXing"
+    
 def round_corners(image, radius):
     rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
     mask = Image.new("L", image.size, 0)
