@@ -52,12 +52,15 @@ def crc16_ccitt(data):
     return f"{crc:04X}"
 
 def parse_tlv(payload):
-    i, result = 0, {}
-    while i < len(payload) - 4:
-        tag, length = payload[i:i+2], int(payload[i+2:i+4])
+    i = 0
+    tlv_data = {}
+    while i < len(payload):
+        tag = payload[i:i+2]
+        length = int(payload[i+2:i+4])
         value = payload[i+4:i+4+length]
-        result[tag], i = value, i + 4 + length
-    return result
+        tlv_data[tag] = value
+        i += 4 + length
+    return tlv_data
 
 def extract_vietqr_info(payload):
     parsed = parse_tlv(payload)
@@ -75,21 +78,44 @@ def extract_vietqr_info(payload):
         info["amount"] = parsed["54"]
     return info
 
-def decode_qr_zxing_online(uploaded_image):
-    img = Image.open(uploaded_image).convert("RGB")
-    buffered = io.BytesIO()
-    img.save(buffered, format="JPEG")
-    img_bytes = buffered.getvalue()
+def decode_qr_auto(uploaded_image):
+    # Convert to OpenCV image
+    uploaded_image.seek(0)
+    file_bytes = np.asarray(bytearray(uploaded_image.read()), dtype=np.uint8)
+    image_cv2 = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    files = {'f': ('qr.jpg', img_bytes, 'image/jpeg')}
-    response = requests.post("https://zxing.org/w/decode", files=files)
+    # Step 1: OpenCV
+    detector = cv2.QRCodeDetector()
+    data, _, _ = detector.detectAndDecode(image_cv2)
+    if data:
+        try:
+            # Check nếu dữ liệu có cấu trúc TLV hợp lệ
+            if data.startswith("00"):
+                _ = parse_tlv(data)  # <-- gọi thử hàm TLV
+                return data.strip(), "✅ OpenCV (Đầy đủ)"
+        except:
+            pass  # dữ liệu không đủ hoặc sai -> fallback ZXing
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        result_tag = soup.find("pre")
-        return result_tag.text.strip() if result_tag else "❌ Không giải mã được (ZXing)"
-    else:
-        return "⚠️ Lỗi khi gọi ZXing API"
+    # Step 2: ZXing fallback
+    try:
+        uploaded_image.seek(0)
+        img = Image.open(uploaded_image).convert("RGB")
+        buffered = io.BytesIO()
+        img.save(buffered, format="JPEG")
+        img_bytes = buffered.getvalue()
+
+        files = {'f': ('qr.jpg', img_bytes, 'image/jpeg')}
+        response = requests.post("https://zxing.org/w/decode", files=files)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            result_tag = soup.find("pre")
+            if result_tag:
+                return result_tag.text.strip(), "✅ ZXing fallback"
+    except Exception as e:
+        return None, f"❌ ZXing lỗi: {e}"
+
+    return None, "❌ Không đọc được QR"
 
 def round_corners(image, radius):
     rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
@@ -220,8 +246,8 @@ st.markdown(
 
 uploaded_result = st.file_uploader("📤 Tải ảnh QR VietQR", type=["png", "jpg", "jpeg"], key="uploaded_file")
 if uploaded_result and uploaded_result != st.session_state.get("last_file_uploaded"):
-    st.session_state["last_file_uploaded"] = uploaded_result
-    qr_text = decode_qr_zxing_online(uploaded_result)
+    qr_text, method = decode_qr_auto(uploaded_result)
+    st.write(method)
     if qr_text:
         info = extract_vietqr_info(qr_text)
         if info.get("bank_bin") != "970418":
