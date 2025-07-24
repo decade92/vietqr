@@ -54,13 +54,24 @@ def crc16_ccitt(data):
 def parse_tlv(payload):
     i = 0
     tlv_data = {}
-    while i < len(payload):
+    while i + 4 <= len(payload):
         tag = payload[i:i+2]
-        length = int(payload[i+2:i+4])
-        value = payload[i+4:i+4+length]
+        length_str = payload[i+2:i+4]
+        try:
+            length = int(length_str)
+        except ValueError:
+            raise ValueError(f"Lỗi TLV: không thể chuyển '{length_str}' thành số nguyên tại vị trí {i}")
+        
+        value_start = i + 4
+        value_end = value_start + length
+        if value_end > len(payload):
+            raise ValueError(f"Lỗi TLV: độ dài value vượt quá payload tại tag {tag}")
+        
+        value = payload[value_start:value_end]
         tlv_data[tag] = value
-        i += 4 + length
+        i = value_end
     return tlv_data
+
 
 def extract_vietqr_info(payload):
     parsed = parse_tlv(payload)
@@ -249,20 +260,20 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
     qr_text, method = decode_qr_auto(uploaded_result)
     st.write(method)
     if qr_text:
-        info = extract_vietqr_info(qr_text)
-        if info.get("bank_bin") != "970418":
-            st.error("⚠️ Ứng dụng chỉ hỗ trợ QR từ BIDV (Mã BIN: 970418).")
-        else:
-            # 🚨 Ghi đè toàn bộ các trường bằng dữ liệu trích xuất từ ảnh QR
-            st.session_state["account"] = info.get("account", "")
-            st.session_state["bank_bin"] = info.get("bank_bin", "970418")
-            st.session_state["note"] = info.get("note", "")
-            st.session_state["amount"] = info.get("amount", "")
-            st.session_state["name"] = info.get("name", "")
-            st.session_state["store"] = info.get("store", "")
-            st.success("✅ Đã trích xuất dữ liệu từ ảnh QR.")
-    else:
-        st.warning("⚠️ Không thể nhận diện được mã QR từ ảnh đã tải lên.")
+        try:
+            info = extract_vietqr_info(qr_text)
+            if info.get("bank_bin") != "970418":
+                st.error("⚠️ Ứng dụng chỉ hỗ trợ QR từ BIDV (Mã BIN: 970418).")
+            else:
+                st.session_state["account"] = info.get("account", "")
+                st.session_state["bank_bin"] = info.get("bank_bin", "970418")
+                st.session_state["note"] = info.get("note", "")
+                st.session_state["amount"] = info.get("amount", "")
+                st.session_state["name"] = info.get("name", "")
+                st.session_state["store"] = info.get("store", "")
+                st.success("✅ Đã trích xuất dữ liệu từ ảnh QR.")
+        except Exception as e:
+            st.warning(f"⚠️ QR được giải mã nhưng không đúng chuẩn VietQR: {e}")
 
 
 # Nhập số tài khoản (giữ nguyên key để Streamlit nhớ giá trị)
