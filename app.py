@@ -26,57 +26,6 @@ FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
 BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
 
-# Bản đồ mã BIN sang tên ngân hàng đầy đủ
-bank_map = {
-    "970418": "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)",
-    "970436": "Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)",
-    "970407": "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam (Agribank)",
-    "970405": "Ngân hàng TMCP Công Thương Việt Nam (VietinBank)",
-    "970422": "Ngân hàng TMCP Quân Đội (MB Bank)",
-    "970423": "Ngân hàng TMCP Hàng Hải Việt Nam (MSB)",
-    "970429": "Ngân hàng TMCP Kỹ Thương Việt Nam (Techcombank)",
-    "970432": "Ngân hàng TMCP Á Châu (ACB)",
-    "970437": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-    "970400": "Ngân hàng TMCP Sài Gòn (SCB)",
-    "970441": "Ngân hàng TMCP Việt Nam Thịnh Vượng (VPBank)",
-    "970452": "Ngân hàng TMCP Nam Á (Nam A Bank)",
-    "970431": "Ngân hàng TMCP Đông Á (DongA Bank)",
-    "970426": "Ngân hàng TMCP Tiên Phong (TPBank)",
-    "970454": "Ngân hàng TMCP Quốc Tế Việt Nam (VIB)",
-    "970408": "Ngân hàng TMCP Xuất Nhập Khẩu Việt Nam (Eximbank)",
-    "970406": "Ngân hàng TMCP An Bình (ABBANK)",
-    "970424": "Ngân hàng TMCP Sài Gòn Hà Nội (SHB)",
-    "970403": "Ngân hàng TMCP Bắc Á (Bac A Bank)",
-    "970421": "Ngân hàng TMCP Bảo Việt (BaoVietBank)",
-    "970412": "Ngân hàng TMCP Đại Chúng Việt Nam (PVcomBank)",
-    "970403": "Ngân hàng TMCP Kiên Long (KienlongBank)",
-    "970442": "Ngân hàng TMCP Phương Đông (OCB)",
-    "970425": "Ngân hàng TMCP Bản Việt (Viet Capital Bank)",
-    "970409": "Ngân hàng TMCP Xăng dầu Petrolimex (PG Bank)",
-    "970427": "Ngân hàng TMCP Việt Á (VietABank)",
-    "970433": "Ngân hàng TMCP Liên Việt (LienVietPostBank)",
-    "970443": "Ngân hàng TNHH MTV Hong Leong VN (Hong Leong)",
-    "970434": "Ngân hàng TNHH MTV Public Bank VN",
-    "970439": "Ngân hàng TNHH Indovina (IVB)",
-    "970453": "Ngân hàng TNHH MTV Shinhan VN",
-    "970455": "Ngân hàng Woori Bank VN",
-    "970414": "Ngân hàng UOB VN",
-    "970448": "Ngân hàng TNHH MTV CIMB",
-    "970444": "Ngân hàng TNHH MTV HSBC",
-    "970410": "Ngân hàng TNHH MTV Standard Chartered",
-    "970415": "Ngân hàng TNHH MTV Citibank",
-    "970421": "Ngân hàng TNHH MTV ANZ",
-    "970460": "Ví điện tử MoMo",
-    "970461": "Ví điện tử ZaloPay",
-    "970462": "Ví điện tử ShopeePay (AirPay)",
-    "970463": "Ví điện tử VNPT Pay",
-    "970464": "Ví điện tử Viettel Money",
-    "970465": "Ví điện tử Payoo",
-    "970466": "Ví điện tử VTC Pay",
-    "970467": "Ví điện tử TrueMoney",
-    "970468": "Ví điện tử SmartPay",
-    # Có thể bổ sung thêm theo cập nhật NAPAS
-}
 
 # ======== QR Logic Functions ========
 def clean_amount_input(raw_input):
@@ -320,6 +269,38 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
     if qr_text:
         try:
             info = extract_vietqr_info(qr_text)
+            bank_bin = info.get("bank_bin", "")
+            bank_map = {
+                "970418": "BIDV",
+                "970403": "Vietcombank",
+                "970415": "VietinBank",
+                "970405": "Agribank",
+                "970407": "TPBank",
+                "970436": "MSB",
+                "970422": "MB",
+                "970412": "Techcombank",
+                "970423": "Sacombank",
+                "970426": "VPBank",
+                "970437": "HDBank",
+                "970427": "OCB",
+                "970430": "VIB",
+                "970432": "ABBank",
+                "970454": "SeABank",
+                "970429": "Nam A Bank",
+                "970441": "SCB",
+                "970440": "NCB",
+                "970448": "SHB",
+                "970452": "Bac A Bank",
+                "970406": "DongA Bank",
+                "970443": "LienVietPostBank",
+                "970438": "Saigonbank",
+                "970431": "PVcomBank",
+                "970444": "VietCapitalBank",
+                "970439": "Eximbank",
+                "970408": "OceanBank",
+                # Thêm nếu cần...
+            }
+
             if bank_bin != "970418":
                 bank_name = bank_map.get(bank_bin, f"Mã BIN {bank_bin}")
                 st.error(f"""
@@ -328,7 +309,7 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
                 """)
             else:
                 st.session_state["account"] = info.get("account", "")
-                st.session_state["bank_bin"] = info.get("bank_bin", "970418")
+                st.session_state["bank_bin"] = bank_bin
                 st.session_state["note"] = info.get("note", "")
                 st.session_state["amount"] = info.get("amount", "")
                 st.session_state["name"] = info.get("name", "")
@@ -336,6 +317,7 @@ if uploaded_result and uploaded_result != st.session_state.get("last_file_upload
                 st.success("✅ Đã trích xuất dữ liệu từ ảnh QR.")
         except Exception as e:
             st.warning(f"⚠️ QR được giải mã nhưng không đúng chuẩn VietQR: {e}")
+
 
 
 # Nhập số tài khoản (giữ nguyên key để Streamlit nhớ giá trị)
