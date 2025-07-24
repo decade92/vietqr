@@ -133,7 +133,7 @@ def decode_qr_auto(uploaded_image):
     except Exception as e:
         return None, f"❌ ZXing lỗi: {e}"
 
-    return None, "❌ Không thể đọc QR bằng OpenCV hoặc ZXing"
+    return None, "❌ Không thể đọc QR bằng OpenCV hoặc ZXing. QR được giải mã nhưng không đúng chuẩn VietQR"
     
 def round_corners(image, radius):
     rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
