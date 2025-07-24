@@ -92,7 +92,7 @@ def decode_qr_auto(uploaded_image):
             # Check nếu dữ liệu có cấu trúc TLV hợp lệ
             if data.startswith("00"):
                 _ = parse_tlv(data)  # <-- gọi thử hàm TLV
-                return data.strip(), "✅ OpenCV (Đầy đủ)"
+                return data.strip(), "✅ Sử dụng OpenCV"
         except:
             pass  # dữ liệu không đủ hoặc sai -> fallback ZXing
 
@@ -111,7 +111,7 @@ def decode_qr_auto(uploaded_image):
             soup = BeautifulSoup(response.text, 'html.parser')
             result_tag = soup.find("pre")
             if result_tag:
-                return result_tag.text.strip(), "✅ ZXing fallback"
+                return result_tag.text.strip(), "✅ Sử dụng ZXing"
     except Exception as e:
         return None, f"❌ ZXing lỗi: {e}"
 
