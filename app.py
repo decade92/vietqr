@@ -319,7 +319,7 @@ def create_qr_tingbox(data, merchant_id):
     )
     qr.add_data(data)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((500, 500))
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((480, 480))
 
     # Mở nền ảnh có sẵn
     base = Image.open(BG_TINGBOX_PATH).convert("RGBA")
