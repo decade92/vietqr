@@ -263,13 +263,13 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     y_offset = qr_y + qr_img.height + 10
 
     # Tên tài khoản
-    font_acc = get_font(acc_name.upper(), max_text_width, 60)
+    font_acc = get_font(acc_name.upper(), max_text_width, 35)
     x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
     draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
 
     # Merchant ID
     y_offset += font_acc.size + 5
-    font_merchant = get_font(merchant_id, max_text_width, 50)
+    font_merchant = get_font(merchant_id, max_text_width, 35)
     x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
     draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
