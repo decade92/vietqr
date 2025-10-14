@@ -325,8 +325,8 @@ def create_qr_tingbox(data, merchant_id):
     base = Image.open(BG_TINGBOX_PATH).convert("RGBA")
 
     # Paste QR vào nền, căn giữa theo X và vị trí Y tùy chỉnh
-    qr_x = 200
-    qr_y = 285  # điều chỉnh tùy ý
+    qr_x = 180
+    qr_y = 265  # điều chỉnh tùy ý
     base.paste(qr_img, (qr_x, qr_y), qr_img)
 
     draw = ImageDraw.Draw(base)
