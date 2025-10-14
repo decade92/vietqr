@@ -261,7 +261,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
 
     # Căn giữa QR
     max_text_width = qr_img.width
-    y_offset = qr_y + qr_img.height + 10
+    y_offset = qr_y + qr_img.height + 20
 
     # Tên tài khoản
     label_acc = "Tên tài khoản:"
@@ -269,19 +269,19 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2, y_offset), 
               label_acc, fill="black", font=font_label)
     
-    y_offset += font_label.size + 2
-    font_acc = get_font(acc_name.upper(), max_text_width, 35)
+    y_offset += font_label.size + 8
+    font_acc = get_font(acc_name.upper(), max_text_width, 32)
     x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
     draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
     
     # Số tài khoản
-    y_offset += font_acc.size + 10
+    y_offset += font_acc.size + 15
     label_merchant = "Số tài khoản:"
     draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_merchant, font=font_label)[2]) // 2, y_offset), 
               label_merchant, fill="black", font=font_label)
     
-    y_offset += font_label.size + 2
-    font_merchant = get_font(merchant_id, max_text_width, 35)
+    y_offset += font_label.size + 8
+    font_merchant = get_font(merchant_id, max_text_width, 32)
     x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
     draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
