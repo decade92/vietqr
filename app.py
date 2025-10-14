@@ -231,7 +231,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name, suppo
     base = Image.open(BG_LOA_PATH).convert("RGBA")
     base.paste(qr_img, (175, 285), qr_img)
     draw = ImageDraw.Draw(base)
-    font = ImageFont.truetype(FONT_PATH, 60)
+    font = ImageFont.truetype(FONT_PATH, 30)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
     draw.text((cx(acc_name.upper(), font), 850), acc_name.upper(), fill=(0, 102, 102), font=font)
     draw.text((cx(merchant_id, font), 1000), merchant_id, fill=(0, 102, 102), font=font)
