@@ -290,14 +290,14 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
    support_phone_x, support_phone_y = 930, 1020
 
     # Vẽ tên cán bộ hỗ trợ
-if support_name:
-    font_support_name = get_font(support_name, max_text_width, 35)
-    draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
-    
-    # Vẽ số điện thoại
-if support_phone:
-    font_support_phone = get_font(support_phone, max_text_width, 35)
-    draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
+    if support_name:
+        font_support_name = get_font(support_name, max_text_width, 35)
+        draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
+        
+        # Vẽ số điện thoại
+    if support_phone:
+        font_support_phone = get_font(support_phone, max_text_width, 35)
+        draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
     
         # Lưu ảnh ra buffer
         buf = io.BytesIO()
