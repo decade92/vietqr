@@ -285,17 +285,17 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
     draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 # Ví dụ tọa độ tùy chỉnh
-    support_name_x, support_name_y = 480, 1220
-    support_phone_x, support_phone_y = 600, 1320
+    support_name_x, support_name_y = 420, 1240
+    support_phone_x, support_phone_y = 440, 1290
 
 # Vẽ tên cán bộ hỗ trợ
     if support_name:
-        font_support_name = get_font(support_name, max_text_width, 35)
+        font_support_name = ImageFont.truetype(FONT_LABELPATH, 35)
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
 
 # Vẽ số điện thoại
     if support_phone:
-        font_support_phone = get_font(support_phone, max_text_width, 35)
+        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 35)
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
   
