@@ -403,4 +403,4 @@ if "qr4" in st.session_state:
         st.image(st.session_state["qr4"], caption="Mẫu QR nền thần tài", use_container_width=True)
 if "qr5" in st.session_state:
     with st.expander("🔊 Mẫu 5: QR nền loa thanh toán"):
-    st.image(st.session_state["qr5"], caption="Mẫu QR loa thanh toán", use_container_width=True)
+        st.image(st.session_state["qr5"], caption="Mẫu QR loa thanh toán", use_container_width=True)
