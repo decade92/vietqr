@@ -319,7 +319,7 @@ def create_qr_tingbox(data, merchant_id):
     )
     qr.add_data(data)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((480, 480))
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((460, 460))
     # Thêm logo lên QR
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
     qr_img.paste(
@@ -331,7 +331,7 @@ def create_qr_tingbox(data, merchant_id):
     base = Image.open(BG_TINGBOX_PATH).convert("RGBA")
 
     # Paste QR vào nền, căn giữa theo X và vị trí Y tùy chỉnh
-    qr_x = 190
+    qr_x = 290
     qr_y = 265  # điều chỉnh tùy ý
     base.paste(qr_img, (qr_x, qr_y), qr_img)
 
