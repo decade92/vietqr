@@ -221,21 +221,70 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     buf = io.BytesIO(); base.save(buf, format="PNG"); buf.seek(0)
     return buf
 
-def create_qr_with_background_loa(data, acc_name, merchant_id, store_name, support_name="", support_phone=""):
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
+def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", support_name="", support_phone=""):
+    # Tạo QR
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=0
+    )
     qr.add_data(data)
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((560, 560))
+
+    # Thêm logo lên QR
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
-    qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), logo)
+    qr_img.paste(
+        logo,
+        ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2),
+        logo
+    )
+
+    # Mở nền
     base = Image.open(BG_LOA_PATH).convert("RGBA")
-    base.paste(qr_img, (175, 285), qr_img)
+    qr_x, qr_y = 175, 285  # Vị trí QR trên nền
+    base.paste(qr_img, (qr_x, qr_y), qr_img)
+
     draw = ImageDraw.Draw(base)
-    font = ImageFont.truetype(FONT_PATH, 30)
-    cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
-    draw.text((cx(acc_name.upper(), font), 850), acc_name.upper(), fill=(0, 102, 102), font=font)
-    draw.text((cx(merchant_id, font), 1000), merchant_id, fill=(0, 102, 102), font=font)
-    buf = io.BytesIO(); base.save(buf, format="PNG"); buf.seek(0)
+
+    # Hàm tính font giảm nếu tên dài
+    def get_font(text, max_width, base_size):
+        font_size = base_size
+        font = ImageFont.truetype(FONT_PATH, font_size)
+        text_width = draw.textbbox((0, 0), text, font=font)[2]
+        while text_width > max_width and font_size > 20:
+            font_size -= 2
+            font = ImageFont.truetype(FONT_PATH, font_size)
+            text_width = draw.textbbox((0, 0), text, font=font)[2]
+        return font
+
+    # Căn giữa QR
+    max_text_width = qr_img.width
+    y_offset = qr_y + qr_img.height + 10
+
+    # Tên tài khoản
+    font_acc = get_font(acc_name.upper(), max_text_width, 60)
+    x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
+    draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
+
+    # Merchant ID
+    y_offset += font_acc.size + 5
+    font_merchant = get_font(merchant_id, max_text_width, 50)
+    x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
+    draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
+
+    # Nếu có cán bộ hỗ trợ
+    if support_name or support_phone:
+        y_offset += font_merchant.size + 20
+        support_text = f"{support_name} - {support_phone}" if support_name and support_phone else support_name or support_phone
+        font_support = get_font(support_text, max_text_width, 40)
+        x_support = qr_x + (qr_img.width - draw.textbbox((0,0), support_text, font=font_support)[2]) // 2
+        draw.text((x_support, y_offset), support_text, fill=(0,102,102), font=font_support)
+
+    # Lưu ảnh ra buffer
+    buf = io.BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
     return buf
 
 # ==== Giao diện người dùng ====
