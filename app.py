@@ -285,8 +285,8 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
     draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 # Ví dụ tọa độ tùy chỉnh
-    support_name_x, support_name_y = 420, 1240
-    support_phone_x, support_phone_y = 440, 1290
+    support_name_x, support_name_y = 320, 1240
+    support_phone_x, support_phone_y = 340, 1290
 
 # Vẽ tên cán bộ hỗ trợ
     if support_name:
