@@ -343,9 +343,9 @@ merchant_id = ''.join(account.split())  # nếu bạn dùng account làm merchan
 # === Danh sách cán bộ hỗ trợ ===
 staff_list = {
     "": ("", ""),
-    "Nguyễn Văn A - BIDV Tiền Hải": ("Nguyễn Văn A", "0901234567"),
-    "Trần Thị B - BIDV Tiền Hải": ("Trần Thị B", "0912345678"),
-    "Phạm Duy Long - BIDV Tiền Hải": ("Phạm Duy Long", "0906026708"),
+    "Vũ Hoàng Phát - PGD Tiền Hải": ("Vũ Hoàng Phát", "0986.155.838"),
+    "Lê Thị Liên - PGD Tiền Hải": ("Lê Thị Liên", "0976.239.278"),
+    "Chu Thị Thu Hiền - BIDV Tiền Hải": ("Chu Thị Thu Hiền", "0989.557.699"),
 }
 
 selected_staff = st.selectbox("👨‍💼 Cán bộ hỗ trợ", list(staff_list.keys()), key="staff_selected")
