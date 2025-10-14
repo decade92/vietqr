@@ -25,7 +25,7 @@ LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
 BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
-
+BG_LOA_PATH = os.path.join(ASSETS_DIR, "backgroundloa.png")
 
 # ======== QR Logic Functions ========
 def clean_amount_input(raw_input):
@@ -221,6 +221,23 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     buf = io.BytesIO(); base.save(buf, format="PNG"); buf.seek(0)
     return buf
 
+def create_qr_with_background_loa(data, acc_name, merchant_id, store_name, support_name="", support_phone=""):
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
+    qr.add_data(data)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((480, 520))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), logo)
+    base = Image.open(BG_LOA_PATH).convert("RGBA")
+    base.paste(qr_img, (793, 725), qr_img)
+    draw = ImageDraw.Draw(base)
+    font = ImageFont.truetype(FONT_PATH, 60)
+    cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
+    draw.text((cx(acc_name.upper(), font), 1665), acc_name.upper(), fill=(0, 102, 102), font=font)
+    draw.text((cx(merchant_id, font), 1815), merchant_id, fill=(0, 102, 102), font=font)
+    buf = io.BytesIO(); base.save(buf, format="PNG"); buf.seek(0)
+    return buf
+
 # ==== Giao diện người dùng ====
 if os.path.exists(FONT_PATH):
     font_css = f"""
@@ -384,3 +401,6 @@ if "qr3" in st.session_state:
 if "qr4" in st.session_state:
     with st.expander("🐯 Mẫu 4: QR thần tài"):
         st.image(st.session_state["qr4"], caption="Mẫu QR nền thần tài", use_container_width=True)
+if "qr5" in st.session_state:
+    with st.expander("🔊 Mẫu 5: QR nền loa thanh toán"):
+    st.image(st.session_state["qr5"], caption="Mẫu QR loa thanh toán", use_container_width=True)
