@@ -229,7 +229,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name, suppo
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), logo)
     base = Image.open(BG_LOA_PATH).convert("RGBA")
-    base.paste(qr_img, (793, 725), qr_img)
+    base.paste(qr_img, (593, 525), qr_img)
     draw = ImageDraw.Draw(base)
     font = ImageFont.truetype(FONT_PATH, 60)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
