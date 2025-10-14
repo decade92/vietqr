@@ -339,6 +339,17 @@ note = st.text_input("📝 Nội dung (nếu có)", value=st.session_state.get("
 bank_bin = ''.join(st.session_state.get("bank_bin", "970418").split())
 amount = ''.join(str(st.session_state.get("amount", "")).split())
 merchant_id = ''.join(account.split())  # nếu bạn dùng account làm merchant_id
+
+# === Danh sách cán bộ hỗ trợ ===
+staff_list = {
+    "": ("", ""),
+    "Nguyễn Văn A - BIDV Tiền Hải": ("Nguyễn Văn A", "0901234567"),
+    "Trần Thị B - BIDV Tiền Hải": ("Trần Thị B", "0912345678"),
+    "Phạm Duy Long - BIDV Tiền Hải": ("Phạm Duy Long", "0906026708"),
+}
+
+selected_staff = st.selectbox("👨‍💼 Cán bộ hỗ trợ", list(staff_list.keys()), key="staff_selected")
+staff_name, staff_phone = staff_list[selected_staff]
 # Xử lý đầu vào số tiền
 amount_input_raw = st.text_input("💰 Số tiền (nếu có)", value=st.session_state.get("amount", ""), key="amount_input")
 amount_cleaned = clean_amount_input(amount_input_raw)
