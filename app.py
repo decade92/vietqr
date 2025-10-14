@@ -23,7 +23,7 @@ st.markdown(
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
 LOGO_PATH = os.path.join(ASSETS_DIR, "logo.png")
 FONT_PATH = os.path.join(ASSETS_DIR, "Roboto-Bold.ttf")
-FONT_PATH2 = os.path.join(ASSETS_DIR, "RobotoCondensed-Regular.ttf")
+FONT_LABELPATH = os.path.join(ASSETS_DIR, "RobotoCondensed-Regular.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
 BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
 BG_LOA_PATH = os.path.join(ASSETS_DIR, "backgroundloa.png")
@@ -265,7 +265,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
 
     # Tên tài khoản
     label_acc = "Tên tài khoản:"
-    font_label = ImageFont.truetype(FONT_PATH, 28)
+    font_label = ImageFont.truetype(FONT_LABELPATH, 28)
     draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2, y_offset), 
               label_acc, fill="black", font=font_label)
     
