@@ -27,6 +27,7 @@ FONT_LABELPATH = os.path.join(ASSETS_DIR, "RobotoCondensed-Regular.ttf")
 BG_PATH = os.path.join(ASSETS_DIR, "background.png")
 BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
 BG_LOA_PATH = os.path.join(ASSETS_DIR, "backgroundloa.png")
+BG_TINGBOX_PATH = os.path.join(ASSETS_DIR, "tingbox.png")
 
 # ======== QR Logic Functions ========
 def clean_amount_input(raw_input):
@@ -309,6 +310,53 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     buf.seek(0)
     return buf
 
+def create_qr_tingbox(data, merchant_id):
+    # Tạo QR
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=12,
+        border=0
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((560, 560))
+
+    # Mở nền ảnh có sẵn
+    base = Image.open(BG_TINGBOX_PATH).convert("RGBA")
+
+    # Paste QR vào nền, căn giữa theo X và vị trí Y tùy chỉnh
+    qr_x = (base.width - qr_img.width) // 2
+    qr_y = 285  # điều chỉnh tùy ý
+    base.paste(qr_img, (qr_x, qr_y), qr_img)
+
+    draw = ImageDraw.Draw(base)
+
+    # Hàm tính font giảm nếu tên quá dài
+    def get_font(text, max_width, base_size):
+        font_size = base_size
+        font = ImageFont.truetype(FONT_PATH, font_size)
+        text_width = draw.textbbox((0,0), text, font=font)[2]
+        while text_width > max_width and font_size > 12:
+            font_size -= 1
+            font = ImageFont.truetype(FONT_PATH, font_size)
+            text_width = draw.textbbox((0,0), text, font=font)[2]
+        return font
+
+    # Vẽ merchant_id dưới QR, căn giữa
+    if merchant_id and merchant_id.strip():
+        max_text_width = qr_img.width
+        font_merchant = get_font(merchant_id, max_text_width, 32)
+        text_width = draw.textbbox((0,0), merchant_id, font=font_merchant)[2]
+        x_merchant = qr_x + (qr_img.width - text_width) // 2
+        y_merchant = qr_y + qr_img.height + 20
+        draw.text((x_merchant, y_merchant), merchant_id, fill=(0,102,102), font=font_merchant)
+
+    # Lưu buffer
+    buf = io.BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+    
 # ==== Giao diện người dùng ====
 if os.path.exists(FONT_PATH):
     font_css = f"""
@@ -465,6 +513,7 @@ if st.button("🎉 Tạo mã QR"):
             staff_name.strip(),
             staff_phone.strip(),
         )
+        st.session_state["qr6"] = create_qr_tingbox(qr_data, account.strip())
         st.success("✅ Mã QR đã được tạo thành công.")
 
 # ==== Hiển thị ảnh QR nếu có ====
@@ -483,3 +532,6 @@ if "qr4" in st.session_state:
 if "qr5" in st.session_state:
     with st.expander("🔊 Mẫu 5: QR nền loa thanh toán"):
         st.image(st.session_state["qr5"], caption="Mẫu QR loa thanh toán", use_container_width=True)
+if "qr6" in st.session_state:
+    with st.expander("📱 Mẫu 6: QR Tingbox"):
+        st.image(st.session_state["qr6"], caption="Mẫu QR Tingbox", use_container_width=True)
