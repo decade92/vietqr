@@ -264,10 +264,11 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     y_offset = qr_y + qr_img.height + 20
 
     # Tên tài khoản
-    label_acc = "Tên tài khoản:"
-    font_label = ImageFont.truetype(FONT_LABELPATH, 28)
-    draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2, y_offset), 
-              label_acc, fill="black", font=font_label)
+    if acc_name and acc_name.strip():
+        label_acc = "Tên tài khoản:"
+        font_label = ImageFont.truetype(FONT_LABELPATH, 28)
+        draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2, y_offset), 
+                  label_acc, fill="black", font=font_label)
     
     y_offset += font_label.size + 8
     font_acc = get_font(acc_name.upper(), max_text_width, 32)
