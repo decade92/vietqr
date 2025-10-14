@@ -284,26 +284,26 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     font_merchant = get_font(merchant_id, max_text_width, 32)
     x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
     draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
+# Ví dụ tọa độ tùy chỉnh
+    support_name_x, support_name_y = 200, 1020
+    support_phone_x, support_phone_y = 400, 1020
 
-    # Nếu có cán bộ hỗ trợ
-   support_name_x, support_name_y = 900, 1020
-   support_phone_x, support_phone_y = 930, 1020
-
-    # Vẽ tên cán bộ hỗ trợ
+# Vẽ tên cán bộ hỗ trợ
     if support_name:
         font_support_name = get_font(support_name, max_text_width, 35)
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
-        
-        # Vẽ số điện thoại
+
+# Vẽ số điện thoại
     if support_phone:
         font_support_phone = get_font(support_phone, max_text_width, 35)
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
-    
-        # Lưu ảnh ra buffer
-        buf = io.BytesIO()
-        base.save(buf, format="PNG")
-        buf.seek(0)
-        return buf
+
+  
+    # Lưu ảnh ra buffer
+    buf = io.BytesIO()
+    base.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 
 # ==== Giao diện người dùng ====
 if os.path.exists(FONT_PATH):
