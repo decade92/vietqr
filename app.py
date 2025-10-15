@@ -293,7 +293,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
         y_offset += merchant_font_size + 20
 
     # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
-    support_name_x, support_name_y = 500, 1137
+    support_name_x, support_name_y = 500, 1147
     support_phone_x, support_phone_y = 570, 1174
 
     if support_name and support_name.strip():
