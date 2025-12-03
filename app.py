@@ -330,8 +330,8 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
-    support_name_x, support_name_y = 200, 600
-    support_phone_x, support_phone_y = 200, 600
+    support_name_x, support_name_y = 50, 600
+    support_phone_x, support_phone_y = 150, 1000
     
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
