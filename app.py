@@ -164,19 +164,29 @@ def generate_qr_with_logo(data):
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
 
-def create_qr_with_text(qr_img, account_name=None):
+def create_qr_with_text(qr_img, account_name=None, account_number=None):
     # Resize QR
     qr_size = (800, 800)
     qr_img = qr_img.resize(qr_size, Image.Resampling.LANCZOS)
 
-    # Nếu không có tên tài khoản → chỉ trả về ảnh QR, không thêm text
-    if not account_name or account_name.strip() == "":
+    # Ghép text nếu có
+    text_parts = []
+
+    if account_name and account_name.strip() != "":
+        text_parts.append(account_name.strip())
+
+    if account_number and account_number.strip() != "":
+        text_parts.append(account_number.strip())
+
+    # Nếu không có text → chỉ trả QR
+    if len(text_parts) == 0:
         return qr_img
 
-    # Nếu có tên tài khoản → hiển thị text bên dưới
+    full_text = " - ".join(text_parts)
+
+    # Tạo canvas có text
     canvas = Image.new("RGB", (800, 900), "white")
     canvas.paste(qr_img, (0, 0))
-
     draw = ImageDraw.Draw(canvas)
 
     try:
@@ -184,13 +194,14 @@ def create_qr_with_text(qr_img, account_name=None):
     except:
         font = ImageFont.load_default()
 
-    text_width, text_height = draw.textbbox((0, 0), account_name, font=font)[2:]
+    # Tính kích thước chữ
+    text_w, text_h = draw.textbbox((0, 0), full_text, font=font)[2:]
 
-    # Center text
-    text_x = (canvas.width - text_width) // 2
-    text_y = 820
+    # Canh giữa
+    x = (canvas.width - text_w) // 2
+    y = 820
 
-    draw.text((text_x, text_y), account_name, fill="black", font=font)
+    draw.text((x, y), full_text, fill="black", font=font)
 
     return canvas
 
