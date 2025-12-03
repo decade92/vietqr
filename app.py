@@ -371,7 +371,7 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     max_text_width = int(base_w * 0.7)
 
     # Vẽ Tên tài khoản và Số tài khoản căn giữa nền
-    y_offset = qr_y + qr_img.height + 220
+    y_offset = qr_y + qr_img.height + 280
 
     if acc_name and acc_name.strip():
         label_acc = "Tên tài khoản:"
