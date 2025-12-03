@@ -323,12 +323,12 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 55
     # ===== Hiển thị Cán bộ hỗ trợ 1 dòng, căn trái =====
-    padding_left = 60
+    padding_left = 70
     padding_bottom = 60
     
     if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
         # Font chữ
-        font_support = ImageFont.truetype(FONT_LABELPATH, 32)
+        font_support = ImageFont.truetype(FONT_LABELPATH, 34)
     
         # Nội dung từng phần
         label_text = "Cán bộ hỗ trợ: "
