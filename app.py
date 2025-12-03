@@ -281,7 +281,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     draw = ImageDraw.Draw(base)
 
     # Font
-    font_label = ImageFont.truetype(FONT_LABELPATH, 40)
+    font_label = ImageFont.truetype(FONT_LABELPATH, 46)
     def get_font(text, max_width, base_size):
         font_size = base_size
         font = ImageFont.truetype(FONT_PATH, font_size)
@@ -293,14 +293,14 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         return font, font_size
 
     # Vẽ Tên tài khoản và Số tài khoản giống loa
-    y_offset = qr_y + qr_img.height + 100
+    y_offset = qr_y + qr_img.height + 160
     max_text_width = qr_img.width
 
     if acc_name and acc_name.strip():
         label_acc = "Tên tài khoản:"
         draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
                   label_acc, fill="black", font=font_label)
-        y_offset += 28 + 20
+        y_offset += 28 + 30
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
         x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
@@ -310,11 +310,11 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         label_merchant = "Số tài khoản:"
         draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
                   label_merchant, fill="black", font=font_label)
-        y_offset += 28 + 20
-        font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
+        y_offset += 28 + 30
+        font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 46)
         x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
-        y_offset += merchant_font_size + 50
+        y_offset += merchant_font_size + 80
 
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
