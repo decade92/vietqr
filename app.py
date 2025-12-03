@@ -293,7 +293,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         return font, font_size
 
     # Vẽ Tên tài khoản và Số tài khoản giống loa
-    y_offset = qr_y + qr_img.height + 160
+    y_offset = qr_y + qr_img.height + 140
     max_text_width = qr_img.width
 
     if acc_name and acc_name.strip():
