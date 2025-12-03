@@ -362,7 +362,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     base.save(buf, format="PNG")
     buf.seek(0)
     return buf
-def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
+def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name, support_name="", support_phone=""):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
     qr.add_data(data)
     qr.make(fit=True)
@@ -405,27 +405,55 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
         text_width = draw.textbbox((0,0), label_acc, font=font_label)[2]
         x_label = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_label, y_offset), label_acc, fill="black", font=font_label)
-        y_offset += 28 + 40
+        y_offset += 28 + 30
 
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
         text_width = draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]
         x_acc = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-        y_offset += acc_font_size + 60
+        y_offset += acc_font_size + 45
 
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
         text_width = draw.textbbox((0,0), label_merchant, font=font_label)[2]
         x_label = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_label, y_offset), label_merchant, fill="black", font=font_label)
-        y_offset += 28 + 40
+        y_offset += 28 + 30
 
         font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 46)
         text_width = draw.textbbox((0,0), merchant_id, font=font_merchant)[2]
         x_merchant = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
-        y_offset += merchant_font_size + 60
-
+        y_offset += merchant_font_size + 35
+    # ===== Hiển thị Cán bộ hỗ trợ 1 dòng, căn trái =====
+    padding_left = 70
+    padding_bottom = 60
+    
+    if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
+        # Font chữ
+        font_support = ImageFont.truetype(FONT_LABELPATH, 34)
+    
+        # Nội dung từng phần
+        label_text = "Cán bộ hỗ trợ: "
+        contact_text = f"{support_name}" if support_name else ""
+        label2_text = " - Liên hệ: "
+        phone_text = f"{support_phone}" if support_phone else ""
+    
+        # Tọa độ căn trái, căn dưới
+        support_x = padding_left
+        support_y = base_h - 32 - padding_bottom  # 32 là font size ước lượng
+    
+        # Vẽ từng phần
+        draw.text((support_x, support_y), label_text, fill=(0,102,102), font=font_support)
+        offset_x = support_x + draw.textbbox((0,0), label_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), contact_text, fill=(255,0,0), font=font_support)
+        offset_x += draw.textbbox((0,0), contact_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), label2_text, fill=(0,102,102), font=font_support)
+        offset_x += draw.textbbox((0,0), label2_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), phone_text, fill=(255,0,0), font=font_support)
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
@@ -720,8 +748,8 @@ if st.button("🎉 Tạo mã QR"):
         qr_data = build_vietqr_payload(account.strip(), bank_bin.strip(), note.strip(), amount.strip())
         st.session_state["qr1"] = generate_qr_with_logo(qr_data)
         st.session_state["qr2"] = create_qr_with_text(qr_data, name.strip(), account.strip())
-        st.session_state["qr3"] = create_qr_with_background(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip(),)
-        st.session_state["qr4"] = create_qr_with_background_thantai(qr_data, name.strip(), account.strip(), store.strip())
+        st.session_state["qr3"] = create_qr_with_background(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip())
+        st.session_state["qr4"] = create_qr_with_background_thantai(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip())
         st.session_state["qr5"] = create_qr_with_background_loa(
             qr_data,
             name.strip(),
