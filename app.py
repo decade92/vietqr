@@ -164,36 +164,29 @@ def generate_qr_with_logo(data):
     img.paste(logo, ((img.width - logo.width) // 2, (img.height - logo.height) // 2), logo)
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
-def create_qr_with_text(data, acc_name, merchant_id, border=20, rotate_deg=90, usage_ratio=0.95):
-    # ===== Tạo QR =====
+def create_qr_with_text(data, acc_name, merchant_id, border=20, usage_ratio=0.95):
+    # ===== Tạo QR gốc =====
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
     qr.add_data(data)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((560, 560))
 
-    # Thêm logo
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
-    qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
-
-    # ===== Nền =====
+    # ===== Mở nền =====
     base = Image.open(BG_PATHFIX).convert("RGBA")
     base_w, base_h = base.size
-
-    # ===== Border ngoài =====
-    new_w = base_w + border*2
-    new_h = base_h
-    bordered_base = Image.new("RGBA", (new_w, new_h), (255, 255, 255, 255))
-    bordered_base.paste(base, (border, 0))
+    # Thêm border
+    new_w, new_h = base_w + border*2, base_h + border*2
+    bordered_base = Image.new("RGBA", (new_w, new_h), (255,255,255,255))
+    bordered_base.paste(base, (border, border))
     base = bordered_base
+    base_w, base_h = base.size
     draw = ImageDraw.Draw(base)
 
-    # ===== Chia khung 2 block =====
-    base_w, base_h = base.size
-    half_w = base_w // 2
-    block_w = int(half_w * usage_ratio)  # chiếm 80-90% nửa nền
-    spacing = half_w - block_w  # khoảng trống giữa 2 block
+    # ===== Tính block width cho mỗi QR =====
+    half_w = (base_w - 2*border)//2
+    qr_target_w = int(half_w * usage_ratio)
+    qr_target_h = qr_target_w  # QR vuông
 
-    # ===== Hàm font tự động =====
+    # ===== Hàm giảm font tự động =====
     def get_font(text, max_width, base_size):
         font_size = base_size
         font = ImageFont.truetype(FONT_PATH, font_size)
@@ -204,43 +197,59 @@ def create_qr_with_text(data, acc_name, merchant_id, border=20, rotate_deg=90, u
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    # ===== Vẽ 2 block QR + text =====
+    label_font_size = 28
+    font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
+
+    # ===== Vẽ 2 QR + text =====
     for i in range(2):
-        # X tính theo block chiếm usage_ratio
-        qr_x = border + i*half_w + (block_w - qr_img.width)//2
-        qr_y = (base_h - qr_img.height)//2 - 30
+        # QR resize
+        qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((qr_target_w, qr_target_h))
+        # Logo resize và paste vào QR
+        logo_resized = Image.open(LOGO_PATH).convert("RGBA")
+        logo_w = int(qr_target_w * 0.4)
+        logo_h = int(logo_resized.height / logo_resized.width * logo_w)
+        logo_resized = logo_resized.resize((logo_w, logo_h))
+        qr_img.paste(logo_resized, ((qr_target_w - logo_w)//2, (qr_target_h - logo_h)//2), logo_resized)
+        # Paste QR vào nền
+        qr_x = border + i*half_w + (half_w - qr_target_w)//2
+        qr_y = base_h//4 - qr_target_h//2 - 30
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
-        y_offset = qr_y + qr_img.height + 20
-        label_font_size = 28
-        font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
-
-        max_qr_text_width = block_w
+        # Vẽ text dưới QR
+        y_offset = qr_y + qr_target_h + 10
+        max_text_width = qr_target_w
 
         if acc_name and acc_name.strip():
             label_acc = "Tên tài khoản:"
-            draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
-                      label_acc, fill="black", font=font_label)
-            y_offset += label_font_size + 8
-            font_acc, acc_font_size = get_font(acc_name.upper(), max_qr_text_width, 36)
-            draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2, y_offset),
-                      acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 15
+            draw.text(
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
+                label_acc, fill="black", font=font_label
+            )
+            y_offset += label_font_size + 4
+
+            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
+            x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
+            draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
+            y_offset += acc_font_size + 8
 
         if merchant_id and merchant_id.strip():
             label_merchant = "Số tài khoản:"
-            draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
-                      label_merchant, fill="black", font=font_label)
-            y_offset += label_font_size + 8
-            font_merchant, merchant_font_size = get_font(merchant_id, max_qr_text_width, 36)
-            draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2, y_offset),
-                      merchant_id, fill=(0,102,102), font=font_merchant)
+            draw.text(
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
+                label_merchant, fill="black", font=font_label
+            )
+            y_offset += label_font_size + 4
 
-    # ===== Quay ảnh =====
-    rotated_base = base.rotate(rotate_deg, expand=True)
+            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
+            x_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2
+            draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
+    # ===== Quay 90 độ sang landscape =====
+    base = base.rotate(-90, expand=True)
+
+    # ===== Lưu buffer =====
     buf = io.BytesIO()
-    rotated_base.save(buf, format="PNG")
+    base.save(buf, format="PNG")
     buf.seek(0)
     return buf
 
