@@ -164,48 +164,93 @@ def generate_qr_with_logo(data):
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
 
-def create_qr_with_text(qr_data, account_name=None, account_number=None):
-    """Tạo QR + text (nếu có). Nếu không có tên thì chỉ hiện QR."""
+def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
+    """
+    Tạo ảnh QR + text:
+    - Luôn tạo QR từ `qr_data` (chuỗi).
+    - Logo được dán giữa QR.
+    - Nếu acc_name có nội dung: hiện TÊN (in hoa) trên cùng và SỐ TÀI KHOẢN bên dưới.
+    - Nếu acc_name trống nhưng merchant_id có: chỉ hiện SỐ TÀI KHOẢN.
+    - Nếu cả hai trống: trả về ảnh QR không text.
+    Trả về: BytesIO (PNG), tương thích với phần còn lại app.
+    """
 
-    # --- 1. Tạo mã QR từ qr_data (chuỗi) ---
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4
-    )
+    # 1) Tạo QR từ chuỗi
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=21, border=3)
     qr.add_data(qr_data)
     qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
-    qr_img = qr_img.resize((800, 800), Image.Resampling.LANCZOS)
+    # Resize QR để đồng nhất với các mẫu khác (giữ tỉ lệ giống các hàm khác)
+    target_qr_size = (800, 800)
+    img = img.resize(target_qr_size, Image.Resampling.LANCZOS)
 
-    # --- 2. Nếu không có tên → trả về QR nguyên bản ---
-    if not account_name or account_name.strip() == "":
-        return qr_img
+    # 2) Thêm logo vào giữa QR (giữ tỉ lệ tương tự các hàm khác)
+    try:
+        logo = Image.open(LOGO_PATH).convert("RGBA")
+        # Kích thước logo: tỉ lệ so với QR (có thể điều chỉnh nếu cần)
+        logo_w = int(img.width * 0.45)
+        logo_h = int(img.height * 0.15)
+        logo = logo.resize((logo_w, logo_h), Image.Resampling.LANCZOS)
+        img.paste(logo, ((img.width - logo_w) // 2, (img.height - logo_h) // 2), logo)
+    except Exception as e:
+        # nếu không có logo thì bỏ qua (vẫn trả về QR)
+        pass
 
-    # --- 3. Nếu có tên → thêm text ---
-    canvas = Image.new("RGB", (800, 900), "white")
-    canvas.paste(qr_img, (0, 0))
+    # 3) Quyết định có vẽ text hay không
+    has_name = bool(acc_name and acc_name.strip())
+    has_merchant = bool(merchant_id and merchant_id.strip())
+
+    # Nếu không có tên và không có merchant_id -> trả về QR thô
+    if not has_name and not has_merchant:
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        return buf
+
+    # 4) Tạo canvas lớn hơn để chứa text bên dưới
+    # Dựa trên kích thước text có thể thay đổi chiều cao; đây là kích thước an toàn
+    canvas_w = img.width
+    canvas_h = img.height + 160  # để dư chỗ text; nếu cần có thể tăng
+    canvas = Image.new("RGBA", (canvas_w, canvas_h), "white")
+    canvas.paste(img, (0, 0))
 
     draw = ImageDraw.Draw(canvas)
 
+    # Fonts: dùng FONT_PATH cho chữ lớn (tên), FONT_LABELPATH cho label nhỏ hơn nếu cần
     try:
-        font = ImageFont.truetype("Roboto-Regular.ttf", 40)
-    except:
-        font = ImageFont.load_default()
+        font_name = ImageFont.truetype(FONT_PATH, 56)      # tên tài khoản (nếu có)
+    except Exception:
+        font_name = ImageFont.load_default()
 
-    # text chỉ có tên, giống logic của mẫu LOA
-    text = account_name.strip()
+    try:
+        font_merchant = ImageFont.truetype(FONT_LABELPATH, 42)  # số tài khoản
+    except Exception:
+        font_merchant = ImageFont.load_default()
 
-    # canh giữa
-    tw, th = draw.textbbox((0, 0), text, font=font)[2:]
-    x = (canvas.width - tw) // 2
-    y = 820
+    # Vẽ text: nếu có tên thì hiện tên (in hoa) trước, sau đó số tài khoản
+    y_start = img.height + 18
 
-    draw.text((x, y), text, fill="black", font=font)
+    if has_name:
+        text_name = acc_name.strip().upper()
+        bbox = draw.textbbox((0, 0), text_name, font=font_name)
+        text_w = bbox[2] - bbox[0]
+        x = (canvas_w - text_w) // 2
+        draw.text((x, y_start), text_name, fill=(0, 102, 102), font=font_name)  # màu tương tự app
+        y_start += (bbox[3] - bbox[1]) + 10  # nhích xuống cho dòng tiếp theo
 
-    return canvas
+    if has_merchant:
+        text_merchant = merchant_id.strip()
+        bbox_m = draw.textbbox((0, 0), text_merchant, font=font_merchant)
+        w_m = bbox_m[2] - bbox_m[0]
+        x_m = (canvas_w - w_m) // 2
+        draw.text((x_m, y_start), text_merchant, fill=(0, 102, 102), font=font_merchant)
+
+    # 5) Xuất ra BytesIO (PNG) để dùng với st.image hoặc lưu vào session_state
+    buf = io.BytesIO()
+    canvas.convert("RGB").save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 
 def create_qr_with_background(data, acc_name, merchant_id, store_name):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
