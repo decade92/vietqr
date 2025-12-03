@@ -411,7 +411,7 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name, s
         text_width = draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]
         x_acc = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-        y_offset += acc_font_size + 55
+        y_offset += acc_font_size + 45
 
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
