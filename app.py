@@ -201,7 +201,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
     label_font_size = 46
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
     font_qr_tip = ImageFont.truetype(FONT_PATH, 46)
-    font_qr_head = ImageFont.truetype(FONT_PATH, 55)
+    font_qr_f = ImageFont.truetype(FONT_PATH, 60)
 
     # ===== Vẽ 2 QR + text =====
     for i in range(2):
@@ -214,7 +214,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         logo_resized = logo_resized.resize((logo_w, logo_h))
         qr_img.paste(logo_resized, ((qr_target_w - logo_w)//2, (qr_target_h - logo_h)//2), logo_resized)
 
-        # ===== Tính tổng chiều cao block (QR + text + tip) =====
+        # ===== Tính tổng chiều cao block (QR + text) =====
         total_text_h = 0
         if acc_name and acc_name.strip():
             _, acc_h = get_font(acc_name.upper(), qr_target_w, 40)
@@ -222,22 +222,21 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         if merchant_id and merchant_id.strip():
             _, merchant_h = get_font(merchant_id, qr_target_w, 40)
             total_text_h += label_font_size + 20 + merchant_h  # nhãn + khoảng cách + số tài khoản
-        total_text_h += 75  # dòng "Quét mã QR..." font 28px
 
-        total_block_h = qr_target_h + total_text_h + 100  # 50 px trên QR cho tip
+        total_block_h = qr_target_h + total_text_h + 50  # 50 px khoảng cách từ dòng tip tới QR
 
         # ===== Căn giữa theo chiều dọc =====
         qr_x = border + i*half_w + (half_w - qr_target_w)//2
-        qr_y = (base_h - total_block_h)//2 + 100  # 50 px từ trên block cho tip
+        qr_y = (base_h - total_block_h)//2 + 50  # 50 px khoảng cách từ trên cho tip
 
         # ===== Vẽ QR =====
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
-        # ===== Vẽ dòng Quét mã QR trên cùng block =====
+        # ===== Vẽ dòng Quét mã QR trên QR, căn giữa QR =====
         qr_tip_text = "Quét mã QR để thanh toán"
-        x_tip = qr_x + (qr_target_w - draw.textbbox((0,0), qr_tip_text, font=font_qr_tip)[2])//2
-        y_tip = qr_y - 100  # cách QR 50 px
-        draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_head)
+        x_tip = qr_x + (qr_target_w - draw.textbbox((0,0), qr_tip_text, font=font_qr_f)[2]) // 2
+        y_tip = qr_y - 50  # cách QR 50 px
+        draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_tip)
 
         # ===== Vẽ text dưới QR với nhãn =====
         y_offset = qr_y + qr_target_h + 20  # 20 px dưới QR
