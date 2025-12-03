@@ -331,7 +331,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
 
    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
     support_name_x, support_name_y = 50, 600
-    support_phone_x, support_phone_y = 150, 1000
+    support_phone_x, support_phone_y = 460, 1500
     
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
