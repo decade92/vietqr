@@ -329,39 +329,17 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         cx = lambda t, f: (base.width - draw.textbbox((0,0), t, font=f)[2]) // 2
         draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
-    # ===== Tọa độ cán bộ hỗ trợ (có khung debug) =====
-    padding_right = 20
-    padding_bottom = 20
-    line_spacing = 5
-
+   # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
+    support_name_x, support_name_y = 500, 1138
+    support_phone_x, support_phone_y = 570, 1175
+    
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-        bbox = draw.textbbox((0,0), support_name, font=font_support_name)
-        name_w = bbox[2] - bbox[0]
-        name_h = bbox[3] - bbox[1]
-
-        # Debug: vẽ khung chữ
-        draw.rectangle([base_w - name_w - padding_right, base_h - name_h - padding_bottom - 32,
-                        base_w - padding_right, base_h - padding_bottom - 32], outline="red", width=2)
-
-        support_name_x = base_w - name_w - padding_right
-        support_name_y = base_h - padding_bottom - name_h - 32  # 32 px cho số điện thoại
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
-
+    
     if support_phone and support_phone.strip():
         font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-        bbox = draw.textbbox((0,0), support_phone, font=font_support_phone)
-        phone_w = bbox[2] - bbox[0]
-        phone_h = bbox[3] - bbox[1]
-
-        # Debug: khung chữ số điện thoại
-        draw.rectangle([base_w - phone_w - padding_right, support_name_y + name_h + line_spacing,
-                        base_w - padding_right, support_name_y + name_h + line_spacing + phone_h], outline="blue", width=2)
-
-        support_phone_x = base_w - phone_w - padding_right
-        support_phone_y = support_name_y + name_h + line_spacing
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
-
     # Lưu buffer
     buf = io.BytesIO()
     base.save(buf, format="PNG")
