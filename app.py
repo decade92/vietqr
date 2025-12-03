@@ -164,7 +164,7 @@ def generate_qr_with_logo(data):
     img.paste(logo, ((img.width - logo.width) // 2, (img.height - logo.height) // 2), logo)
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
-def create_qr_with_text(data, acc_name, merchant_id, store_name=""):
+def create_qr_with_text(data, acc_name, merchant_id):
     # ===== Tạo QR =====
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
     qr.add_data(data)
@@ -731,7 +731,7 @@ if st.button("🎉 Tạo mã QR"):
     else:
         qr_data = build_vietqr_payload(account.strip(), bank_bin.strip(), note.strip(), amount.strip())
         st.session_state["qr1"] = generate_qr_with_logo(qr_data)
-        st.session_state["qr2"] = create_qr_with_text(qr_data, name.strip(), account.strip(), store.strip())
+        st.session_state["qr2"] = create_qr_with_text(qr_data, name.strip(), account.strip())
         st.session_state["qr3"] = create_qr_with_background(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip())
         st.session_state["qr4"] = create_qr_with_background_thantai(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip())
         st.session_state["qr5"] = create_qr_with_background_loa(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip())
