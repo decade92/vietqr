@@ -281,7 +281,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     draw = ImageDraw.Draw(base)
 
     # Font
-    font_label = ImageFont.truetype(FONT_LABELPATH, 28)
+    font_label = ImageFont.truetype(FONT_LABELPATH, 40)
     def get_font(text, max_width, base_size):
         font_size = base_size
         font = ImageFont.truetype(FONT_PATH, font_size)
@@ -293,7 +293,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         return font, font_size
 
     # Vẽ Tên tài khoản và Số tài khoản giống loa
-    y_offset = qr_y + qr_img.height + 20
+    y_offset = qr_y + qr_img.height + 60
     max_text_width = qr_img.width
 
     if acc_name and acc_name.strip():
@@ -301,7 +301,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
                   label_acc, fill="black", font=font_label)
         y_offset += 28 + 8
-        font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
+        font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
         x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
         y_offset += acc_font_size + 15
