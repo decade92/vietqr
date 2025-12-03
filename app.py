@@ -235,7 +235,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         if acc_name and acc_name.strip():
             label_acc = "Tên tài khoản:"
             draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 4),
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 30),
                 label_acc, fill="black", font=font_label
             )
             y_offset += label_font_size + 20
