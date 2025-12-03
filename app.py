@@ -227,7 +227,7 @@ def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
     draw = ImageDraw.Draw(canvas)
 
     # padding đầu tiên từ QR xuống chữ đầu tiên gần hơn
-    first_line_padding = 3
+    first_line_padding = 1
     y = qr_h + first_line_padding
     max_w = qr_w
 
