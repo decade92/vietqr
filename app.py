@@ -164,26 +164,35 @@ def generate_qr_with_logo(data):
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
 
-def create_qr_with_text(data, acc_name, merchant_id):
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=21, border=3)
-    qr.add_data(data); qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((int(img.width*0.45), int(img.height*0.15)))
-    img.paste(logo, ((img.width - logo.width) // 2, (img.height - logo.height) // 2), logo)
-    lines = [("Tên tài khoản:", 48, "black"), (acc_name.upper(), 60, "#007C71"), ("Tài khoản định danh:", 48, "black"), (merchant_id, 60, "#007C71")]
-    spacing = 20
-    total_text_height = sum([size for _, size, _ in lines]) + spacing * (len(lines) - 1)
-    canvas = Image.new("RGBA", (img.width, img.height + total_text_height + 65), "white")
-    canvas.paste(img, (0, 0))
+def create_qr_with_text(qr_img, account_name=None):
+    # Resize QR
+    qr_size = (800, 800)
+    qr_img = qr_img.resize(qr_size, Image.Resampling.LANCZOS)
+
+    # Nếu không có tên tài khoản → chỉ trả về ảnh QR, không thêm text
+    if not account_name or account_name.strip() == "":
+        return qr_img
+
+    # Nếu có tên tài khoản → hiển thị text bên dưới
+    canvas = Image.new("RGB", (800, 900), "white")
+    canvas.paste(qr_img, (0, 0))
+
     draw = ImageDraw.Draw(canvas)
-    y = img.height + 16
-    for text, size, color in lines:
-        font = ImageFont.truetype(FONT_PATH, size)
-        x = (canvas.width - draw.textbbox((0, 0), text, font=font)[2]) // 2
-        draw.text((x, y), text, fill=color, font=font)
-        y += size + spacing
-    buf = io.BytesIO(); canvas.save(buf, format="PNG"); buf.seek(0)
-    return buf
+
+    try:
+        font = ImageFont.truetype("Roboto-Regular.ttf", 40)
+    except:
+        font = ImageFont.load_default()
+
+    text_width, text_height = draw.textbbox((0, 0), account_name, font=font)[2:]
+
+    # Center text
+    text_x = (canvas.width - text_width) // 2
+    text_y = 820
+
+    draw.text((text_x, text_y), account_name, fill="black", font=font)
+
+    return canvas
 
 def create_qr_with_background(data, acc_name, merchant_id, store_name):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
