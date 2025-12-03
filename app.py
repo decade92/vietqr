@@ -223,7 +223,8 @@ def create_qr_with_text(data, acc_name, merchant_id):
             font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
             draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2, y_offset),
                       merchant_id, fill=(0,102,102), font=font_merchant)
-
+    # ===== Quay ảnh trước khi save =====
+    rotated_base = base.rotate(rotate_deg, expand=True)
     # Return buffer
     buf = io.BytesIO()
     base.save(buf, format="PNG")
