@@ -180,7 +180,7 @@ def create_qr_with_text(data, acc_name, merchant_id):
     )
 
     # ===== Mở nền =====
-    base = Image.open(BG_LOA_PATHFIX).convert("RGBA")
+    base = Image.open(BG_PATHFIX).convert("RGBA")
 
     # ===== Thêm border =====
     border = 50
