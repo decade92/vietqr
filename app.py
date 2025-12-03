@@ -327,28 +327,35 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     padding_bottom = 60
     
     if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
-        # Tạo nội dung hiển thị
-        support_text = f"Cán bộ hỗ trợ: {support_name} - Liên hệ: {support_phone}".strip(" -")
-        
         # Font chữ
-        font_support = ImageFont.truetype(FONT_LABELPATH, 38)
-        
-        # Lấy kích thước chữ
-        text_w, text_h = draw.textbbox((0, 0), support_text, font=font_support)[2:]
-        
+        font_support = ImageFont.truetype(FONT_LABELPATH, 32)
+    
+        # Nội dung từng phần
+        label_text = "Cán bộ hỗ trợ: "
+        contact_text = f"{support_name}" if support_name else ""
+        label2_text = " - Liên hệ: "
+        phone_text = f"{support_phone}" if support_phone else ""
+    
         # Tọa độ căn trái, căn dưới
         support_x = padding_left
-        support_y = base_h - text_h - padding_bottom
-        
-        # Vẽ chữ
-        draw.text((support_x, support_y), support_text, fill=(0,102,102), font=font_support)
-    # Store name
-    store_font = ImageFont.truetype(FONT_PATH, 70)
-    if store_name and store_name.strip():
-        cx = lambda t, f: (base.width - draw.textbbox((0,0), t, font=f)[2]) // 2
-        draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
-
+        support_y = base_h - 32 - padding_bottom  # 32 là font size ước lượng
     
+        # Vẽ từng phần
+        draw.text((support_x, support_y), label_text, fill=(0,102,102), font=font_support)
+        offset_x = support_x + draw.textbbox((0,0), label_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), contact_text, fill=(255,0,0), font=font_support)
+        offset_x += draw.textbbox((0,0), contact_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), label2_text, fill=(0,102,102), font=font_support)
+        offset_x += draw.textbbox((0,0), label2_text, font=font_support)[2]
+    
+        draw.text((offset_x, support_y), phone_text, fill=(255,0,0), font=font_support)
+        # Store name
+        store_font = ImageFont.truetype(FONT_PATH, 70)
+        if store_name and store_name.strip():
+            cx = lambda t, f: (base.width - draw.textbbox((0,0), t, font=f)[2]) // 2
+            draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
     # Lưu buffer
     buf = io.BytesIO()
