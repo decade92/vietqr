@@ -198,7 +198,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    label_font_size = 28
+    label_font_size = 36
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
 
     # ===== Vẽ 2 QR + text =====
@@ -215,11 +215,11 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         # ===== Tính tổng chiều cao block (QR + text) =====
         total_text_h = 0
         if acc_name and acc_name.strip():
-            _, acc_h = get_font(acc_name.upper(), qr_target_w, 32)
-            total_text_h += label_font_size + 8 + acc_h + 15
+            _, acc_h = get_font(acc_name.upper(), qr_target_w, 40)
+            total_text_h += label_font_size + 20 + acc_h + 30
         if merchant_id and merchant_id.strip():
-            _, merchant_h = get_font(merchant_id, qr_target_w, 32)
-            total_text_h += label_font_size + 8 + merchant_h + 20
+            _, merchant_h = get_font(merchant_id, qr_target_w, 40)
+            total_text_h += label_font_size + 20 + merchant_h + 30
 
         total_block_h = qr_target_h + total_text_h
 
@@ -238,12 +238,12 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
                 (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 4),
                 label_acc, fill="black", font=font_label
             )
-            y_offset += label_font_size + 8
+            y_offset += label_font_size + 20
 
-            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
+            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 40)
             x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
             draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 15
+            y_offset += acc_font_size + 30
 
         if merchant_id and merchant_id.strip():
             label_merchant = "Số tài khoản:"
@@ -251,9 +251,9 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
                 (qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset + 4),
                 label_merchant, fill="black", font=font_label
             )
-            y_offset += label_font_size + 8
+            y_offset += label_font_size + 20
 
-            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
+            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 40)
             x_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2
             draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
