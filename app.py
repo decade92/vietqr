@@ -283,7 +283,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
 
     draw = ImageDraw.Draw(base)
 
-    # Font label cố định
+    # Font cố định
     font_label = ImageFont.truetype(FONT_LABELPATH, 46)
 
     # Hàm giảm font nếu chữ dài
@@ -325,58 +325,45 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
 
-    # Store name
+    # Store name trên cùng
     store_font = ImageFont.truetype(FONT_PATH, 70)
-    cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
     if store_name and store_name.strip():
-        draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
+        store_x = (base_w - draw.textbbox((0,0), store_name.upper(), font=store_font)[2]) // 2
+        draw.text((store_x, 265), store_name.upper(), fill="#007C71", font=store_font)
 
-    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
-    padding_right = 20
-    padding_bottom = 20
-    line_spacing = 5
-    support_name_y = None
-    
-    if support_name and support_name.strip():
-        font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-        bbox = draw.textbbox((0,0), support_name, font=font_support_name)
-        name_w = bbox[2] - bbox[0]
-        name_h = bbox[3] - bbox[1]
-    
-        support_name_x = base_w - name_w - padding_right
-        support_name_y = base_h - padding_bottom - name_h
-        draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
-    
-    if support_phone and support_phone.strip():
-        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-        bbox = draw.textbbox((0,0), support_phone, font=font_support_phone)
-        phone_w = bbox[2] - bbox[0]
-        phone_h = bbox[3] - bbox[1]
-    
-        support_phone_x = base_w - phone_w - padding_right
-    
-        # Nếu support_name tồn tại, để số điện thoại cách tên một khoảng, nếu không, cách đáy padding_bottom
-        if support_name_y is not None:
-            support_phone_y = support_name_y + name_h + line_spacing
+    # ===== Cán bộ hỗ trợ =====
+    if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
+        padding_right = 20
+        padding_bottom = 20
+        line_spacing = 5
+
+        # Vẽ tên
+        if support_name and support_name.strip():
+            font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
+            bbox = draw.textbbox((0,0), support_name, font=font_support_name)
+            name_w = bbox[2] - bbox[0]
+            name_h = bbox[3] - bbox[1]
+            support_name_x = base_w - name_w - padding_right
+            support_name_y = base_h - padding_bottom - name_h - 32  # 32 px để số điện thoại
+            draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
         else:
-            support_phone_y = base_h - padding_bottom - phone_h
-    
-        draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
-    # Test hiển thị thông tin cán bộ hỗ trợ
-    if support_name and support_name.strip():
-        font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-        draw.text((100, 100), support_name, fill=(255,0,0), font=font_support_name)  # màu đỏ để test
-    
-    if support_phone and support_phone.strip():
-        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-        draw.text((100, 150), support_phone, fill=(255,0,0), font=font_support_phone)  # cách 50px bên dưới
+            name_h = 0
+            support_name_y = base_h - padding_bottom - 32
+
+        # Vẽ số điện thoại
+        if support_phone and support_phone.strip():
+            font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
+            bbox = draw.textbbox((0,0), support_phone, font=font_support_phone)
+            phone_w = bbox[2] - bbox[0]
+            support_phone_x = base_w - phone_w - padding_right
+            support_phone_y = support_name_y + name_h + line_spacing
+            draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
     # Lưu buffer
     buf = io.BytesIO()
     base.save(buf, format="PNG")
     buf.seek(0)
     return buf
-
 def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
     qr.add_data(data)
