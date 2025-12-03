@@ -164,29 +164,30 @@ def generate_qr_with_logo(data):
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
 
-def create_qr_with_text(qr_img, account_name=None, account_number=None):
-    # Resize QR
-    qr_size = (800, 800)
-    qr_img = qr_img.resize(qr_size, Image.Resampling.LANCZOS)
+def create_qr_with_text(qr_data, account_name=None, account_number=None):
+    """Tạo QR + text (nếu có). Nếu không có tên thì chỉ hiện QR."""
 
-    # Ghép text nếu có
-    text_parts = []
+    # --- 1. Tạo mã QR từ qr_data (chuỗi) ---
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(qr_data)
+    qr.make(fit=True)
 
-    if account_name and account_name.strip() != "":
-        text_parts.append(account_name.strip())
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    qr_img = qr_img.resize((800, 800), Image.Resampling.LANCZOS)
 
-    if account_number and account_number.strip() != "":
-        text_parts.append(account_number.strip())
-
-    # Nếu không có text → chỉ trả QR
-    if len(text_parts) == 0:
+    # --- 2. Nếu không có tên → trả về QR nguyên bản ---
+    if not account_name or account_name.strip() == "":
         return qr_img
 
-    full_text = " - ".join(text_parts)
-
-    # Tạo canvas có text
+    # --- 3. Nếu có tên → thêm text ---
     canvas = Image.new("RGB", (800, 900), "white")
     canvas.paste(qr_img, (0, 0))
+
     draw = ImageDraw.Draw(canvas)
 
     try:
@@ -194,14 +195,15 @@ def create_qr_with_text(qr_img, account_name=None, account_number=None):
     except:
         font = ImageFont.load_default()
 
-    # Tính kích thước chữ
-    text_w, text_h = draw.textbbox((0, 0), full_text, font=font)[2:]
+    # text chỉ có tên, giống logic của mẫu LOA
+    text = account_name.strip()
 
-    # Canh giữa
-    x = (canvas.width - text_w) // 2
+    # canh giữa
+    tw, th = draw.textbbox((0, 0), text, font=font)[2:]
+    x = (canvas.width - tw) // 2
     y = 820
 
-    draw.text((x, y), full_text, fill="black", font=font)
+    draw.text((x, y), text, fill="black", font=font)
 
     return canvas
 
