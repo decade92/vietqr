@@ -198,9 +198,9 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    label_font_size = 28
+    label_font_size = 36
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
-    font_qr_tip = ImageFont.truetype(FONT_PATH, 28)
+    font_qr_tip = ImageFont.truetype(FONT_PATH, 36)
 
     # ===== Vẽ 2 QR + text =====
     for i in range(2):
@@ -216,14 +216,14 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         # ===== Tính tổng chiều cao block (QR + text + tip) =====
         total_text_h = 0
         if acc_name and acc_name.strip():
-            _, acc_h = get_font(acc_name.upper(), qr_target_w, 32)
-            total_text_h += 20 + acc_h  # 20 px dưới QR
+            _, acc_h = get_font(acc_name.upper(), qr_target_w, 40)
+            total_text_h += label_font_size + 8 + acc_h  # nhãn + khoảng cách + tên
         if merchant_id and merchant_id.strip():
-            _, merchant_h = get_font(merchant_id, qr_target_w, 32)
-            total_text_h += 5 + merchant_h  # khoảng cách nhỏ 5 px
-        total_text_h += 28  # dòng "Quét mã QR..." 28px font
+            _, merchant_h = get_font(merchant_id, qr_target_w, 40)
+            total_text_h += label_font_size + 8 + merchant_h  # nhãn + khoảng cách + số tài khoản
+        total_text_h += 28  # dòng "Quét mã QR..." font 28px
 
-        total_block_h = qr_target_h + total_text_h + 50  # 50 px trên QR cho dòng tip
+        total_block_h = qr_target_h + total_text_h + 50  # 50 px trên QR cho tip
 
         # ===== Căn giữa theo chiều dọc =====
         qr_x = border + i*half_w + (half_w - qr_target_w)//2
@@ -238,18 +238,30 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         y_tip = qr_y - 50  # cách QR 50 px
         draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_tip)
 
-        # ===== Vẽ text dưới QR =====
+        # ===== Vẽ text dưới QR với nhãn =====
         y_offset = qr_y + qr_target_h + 20  # 20 px dưới QR
         max_text_width = qr_target_w
 
         if acc_name and acc_name.strip():
-            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
+            # Nhãn
+            label_acc = "Tên tài khoản:"
+            x_label_acc = qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2
+            draw.text((x_label_acc, y_offset), label_acc, fill="black", font=font_label)
+            y_offset += label_font_size + 8
+            # Tên
+            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 40)
             x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
             draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 5
+            y_offset += acc_font_size + 15
 
         if merchant_id and merchant_id.strip():
-            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
+            # Nhãn
+            label_merchant = "Số tài khoản:"
+            x_label_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2
+            draw.text((x_label_merchant, y_offset), label_merchant, fill="black", font=font_label)
+            y_offset += label_font_size + 8
+            # Số tài khoản
+            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 40)
             x_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2
             draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
