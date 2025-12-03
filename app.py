@@ -164,7 +164,7 @@ def generate_qr_with_logo(data):
     img.paste(logo, ((img.width - logo.width) // 2, (img.height - logo.height) // 2), logo)
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
-def create_qr_with_text(data, acc_name, merchant_id):
+def create_qr_with_text(data, acc_name, merchant_id, rotate_deg=90):
     # ===== Tạo QR =====
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=0)
     qr.add_data(data)
