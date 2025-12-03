@@ -322,24 +322,26 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         x_merchant = (base_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
-    # ===== THÊM PHẦN CÁN BỘ HỖ TRỢ NGAY DƯỚI TÀI KHOẢN =====
+    # ===== Hiển thị Cán bộ hỗ trợ 1 dòng =====
+    padding_right = 20
+    padding_bottom = 20
+    
     if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
-        font_support = ImageFont.truetype(FONT_LABELPATH, 38)
-
-        # In chữ màu rõ, có alpha = 255
-        fill_support = (0, 102, 102, 255)
-
-        if support_name and support_name.strip():
-            w = draw.textbbox((0,0), support_name, font=font_support)[2]
-            x = (base_w - w) // 2
-            draw.text((x, y_offset), support_name, fill=fill_support, font=font_support)
-            y_offset += 50  # khoảng cách xuống dòng
-
-        if support_phone and support_phone.strip():
-            w = draw.textbbox((0,0), support_phone, font=font_support)[2]
-            x = (base_w - w) // 2
-            draw.text((x, y_offset), support_phone, fill=fill_support, font=font_support)
-            y_offset += 50
+        # Tạo nội dung hiển thị
+        support_text = f"Cán bộ hỗ trợ: {support_name} - Liên hệ: {support_phone}".strip(" -")
+        
+        # Font chữ
+        font_support = ImageFont.truetype(FONT_LABELPATH, 32)
+        
+        # Lấy kích thước chữ
+        text_w, text_h = draw.textbbox((0, 0), support_text, font=font_support)[2:]
+        
+        # Tọa độ căn phải, căn dưới
+        support_x = base_w - text_w - padding_right
+        support_y = base_h - text_h - padding_bottom
+        
+        # Vẽ chữ
+        draw.text((support_x, support_y), support_text, fill=(0,102,102), font=font_support)
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
     if store_name and store_name.strip():
