@@ -198,8 +198,9 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    label_font_size = 36
+    label_font_size = 28
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
+    font_qr_tip = ImageFont.truetype(FONT_PATH, 28)
 
     # ===== Vẽ 2 QR + text =====
     for i in range(2):
@@ -212,48 +213,43 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         logo_resized = logo_resized.resize((logo_w, logo_h))
         qr_img.paste(logo_resized, ((qr_target_w - logo_w)//2, (qr_target_h - logo_h)//2), logo_resized)
 
-        # ===== Tính tổng chiều cao block (QR + text) =====
+        # ===== Tính tổng chiều cao block (QR + text + tip) =====
         total_text_h = 0
         if acc_name and acc_name.strip():
-            _, acc_h = get_font(acc_name.upper(), qr_target_w, 40)
-            total_text_h += label_font_size + 20 + acc_h + 30
+            _, acc_h = get_font(acc_name.upper(), qr_target_w, 32)
+            total_text_h += 20 + acc_h  # 20 px dưới QR
         if merchant_id and merchant_id.strip():
-            _, merchant_h = get_font(merchant_id, qr_target_w, 40)
-            total_text_h += label_font_size + 20 + merchant_h + 30
+            _, merchant_h = get_font(merchant_id, qr_target_w, 32)
+            total_text_h += 5 + merchant_h  # khoảng cách nhỏ 5 px
+        total_text_h += 28  # dòng "Quét mã QR..." 28px font
 
-        total_block_h = qr_target_h + total_text_h
+        total_block_h = qr_target_h + total_text_h + 50  # 50 px trên QR cho dòng tip
 
         # ===== Căn giữa theo chiều dọc =====
         qr_x = border + i*half_w + (half_w - qr_target_w)//2
-        qr_y = (base_h - total_block_h)//2
+        qr_y = (base_h - total_block_h)//2 + 50  # 50 px từ trên block cho tip
+
+        # ===== Vẽ QR =====
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
+        # ===== Vẽ dòng Quét mã QR trên cùng block =====
+        qr_tip_text = "Quét mã QR để thanh toán"
+        x_tip = qr_x + (qr_target_w - draw.textbbox((0,0), qr_tip_text, font=font_qr_tip)[2])//2
+        y_tip = qr_y - 50  # cách QR 50 px
+        draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_tip)
+
         # ===== Vẽ text dưới QR =====
-        y_offset += qr_y + qr_target_h + 20
+        y_offset = qr_y + qr_target_h + 20  # 20 px dưới QR
         max_text_width = qr_target_w
 
         if acc_name and acc_name.strip():
-            label_acc = "Tên tài khoản:"
-            draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 4),
-                label_acc, fill="black", font=font_label
-            )
-            y_offset += label_font_size + 20
-
-            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 40)
+            font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
             x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
             draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 30
+            y_offset += acc_font_size + 5
 
         if merchant_id and merchant_id.strip():
-            label_merchant = "Số tài khoản:"
-            draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset + 4),
-                label_merchant, fill="black", font=font_label
-            )
-            y_offset += label_font_size + 20
-
-            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 40)
+            font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
             x_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2
             draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
 
