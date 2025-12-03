@@ -399,7 +399,24 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
         x_merchant = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
+    # ===== THÊM PHẦN CÁN BỘ HỖ TRỢ NGAY DƯỚI TÀI KHOẢN =====
+    if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
+        font_support = ImageFont.truetype(FONT_LABELPATH, 38)
 
+        # In chữ màu rõ, có alpha = 255
+        fill_support = (0, 102, 102, 255)
+
+        if support_name and support_name.strip():
+            w = draw.textbbox((0,0), support_name, font=font_support)[2]
+            x = (base_w - w) // 2
+            draw.text((x, y_offset), support_name, fill=fill_support, font=font_support)
+            y_offset += 50  # khoảng cách xuống dòng
+
+        if support_phone and support_phone.strip():
+            w = draw.textbbox((0,0), support_phone, font=font_support)[2]
+            x = (base_w - w) // 2
+            draw.text((x, y_offset), support_phone, fill=fill_support, font=font_support)
+            y_offset += 50
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
@@ -694,7 +711,7 @@ if st.button("🎉 Tạo mã QR"):
         qr_data = build_vietqr_payload(account.strip(), bank_bin.strip(), note.strip(), amount.strip())
         st.session_state["qr1"] = generate_qr_with_logo(qr_data)
         st.session_state["qr2"] = create_qr_with_text(qr_data, name.strip(), account.strip())
-        st.session_state["qr3"] = create_qr_with_background(qr_data, name.strip(), account.strip(), store.strip())
+        st.session_state["qr3"] = create_qr_with_background(qr_data, name.strip(), account.strip(), store.strip(), staff_name.strip(), staff_phone.strip(),)
         st.session_state["qr4"] = create_qr_with_background_thantai(qr_data, name.strip(), account.strip(), store.strip())
         st.session_state["qr5"] = create_qr_with_background_loa(
             qr_data,
