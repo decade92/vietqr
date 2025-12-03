@@ -304,7 +304,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
         x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-        y_offset += acc_font_size + 15
+        y_offset += acc_font_size + 80
 
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
@@ -314,7 +314,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
         font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 46)
         x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
-        y_offset += merchant_font_size + 120
+        y_offset += merchant_font_size + 80
 
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
