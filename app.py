@@ -322,9 +322,9 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         x_merchant = (base_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
-    # ===== Hiển thị Cán bộ hỗ trợ 1 dòng =====
-    padding_right = 20
-    padding_bottom = 20
+    # ===== Hiển thị Cán bộ hỗ trợ 1 dòng, căn trái =====
+    padding_left = 40
+    padding_bottom = 50
     
     if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
         # Tạo nội dung hiển thị
@@ -336,8 +336,8 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         # Lấy kích thước chữ
         text_w, text_h = draw.textbbox((0, 0), support_text, font=font_support)[2:]
         
-        # Tọa độ căn phải, căn dưới
-        support_x = base_w - text_w - padding_right
+        # Tọa độ căn trái, căn dưới
+        support_x = padding_left
         support_y = base_h - text_h - padding_bottom
         
         # Vẽ chữ
