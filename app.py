@@ -166,56 +166,85 @@ def generate_qr_with_logo(data):
 
 def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
     """
-    Tạo QR + text giống layout LOA nhưng giữ nguyên kích thước ảnh QR và viền trắng gốc.
+    Tạo QR + text giống layout LOA nhưng:
+    - Giữ nguyên khổ ảnh QR và viền trắng
+    - Logo giữ tỉ lệ gốc
+    - Khoảng trắng dưới QR linh hoạt
+    - Text căn giữa, số tài khoản xuống dòng
     """
-
-    # ===== 1️⃣ TẠO QR GIỮ NGUYÊN VIỀN =====
+    # ===== 1️⃣ Tạo QR =====
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
-        border=4   # giữ viền trắng nguyên bản như code cũ
+        border=4
     )
     qr.add_data(qr_data)
     qr.make(fit=True)
-
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
+    qr_w, qr_h = qr_img.size
 
-    # Nhúng logo giữa QR giống bản của bạn
-    try:
+    # ===== 2️⃣ Thêm logo giữa QR, giữ tỉ lệ gốc =====
+    if os.path.exists(LOGO_PATH):
         logo = Image.open(LOGO_PATH).convert("RGBA")
-        qr_w, qr_h = qr_img.size
-
-        # scale logo theo QR gốc (không sửa size QR)
-        logo_size = int(qr_w * 0.23)
-        logo = logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
-
-        pos = ((qr_w - logo_size) // 2, (qr_h - logo_size) // 2)
+        logo_w, logo_h = logo.size
+        # max kích thước logo
+        max_w = int(qr_w * 0.45)
+        max_h = int(qr_h * 0.15)
+        scale = min(max_w / logo_w, max_h / logo_h, 1.0)
+        logo = logo.resize((int(logo_w * scale), int(logo_h * scale)), Image.Resampling.LANCZOS)
+        pos = ((qr_w - logo.width) // 2, (qr_h - logo.height) // 2)
         qr_img.paste(logo, pos, logo)
-    except:
-        pass
 
-    # Nếu không có text -> trả về ảnh QR gốc
-    if not (acc_name or merchant_id):
+    # ===== 3️⃣ Kiểm tra có text không =====
+    has_name = bool(acc_name and acc_name.strip())
+    has_merchant = bool(merchant_id and merchant_id.strip())
+    if not has_name and not has_merchant:
         buf = io.BytesIO()
         qr_img.save(buf, format="PNG")
         buf.seek(0)
         return buf
 
-    # ===== 2️⃣ TẠO CANVAS GIỮ KHỔ NGUYÊN BẢN + CHO THÊM TEXT =====
-    qr_w, qr_h = qr_img.size
-    extra_h = 260   # chiều cao thêm, giống LOA
-    canvas = Image.new("RGBA", (qr_w, qr_h + extra_h), "white")
-    canvas.paste(qr_img, (0, 0))
+    # ===== 4️⃣ Tạo canvas + tính chiều cao linh hoạt =====
+    label_spacing = 8
+    value_spacing = 15
+    text_lines = []
 
-    draw = ImageDraw.Draw(canvas)
+    if has_name:
+        text_lines.append(("Tên tài khoản:", "label"))
+        text_lines.append((acc_name.upper(), "value"))
+    if has_merchant:
+        text_lines.append(("Số tài khoản:", "label"))
+        text_lines.append((merchant_id, "value"))
 
-    # Font giống LOA
+    # tính tổng chiều cao text
+    draw_dummy = ImageDraw.Draw(Image.new("RGB", (10,10)))
     try:
         font_label = ImageFont.truetype(FONT_LABELPATH, 28)
+        base_value_font_size = 32
+        font_value = ImageFont.truetype(FONT_PATH, base_value_font_size)
     except:
         font_label = ImageFont.load_default()
+        font_value = ImageFont.load_default()
 
+    total_h = 0
+    for text, ttype in text_lines:
+        f = font_label if ttype=="label" else font_value
+        bbox = draw_dummy.textbbox((0,0), text, font=f)
+        total_h += (bbox[3]-bbox[1])
+        if ttype=="label":
+            total_h += label_spacing
+        else:
+            total_h += value_spacing
+
+    canvas_h = qr_h + total_h + 10  # +10 padding dưới
+    canvas = Image.new("RGBA", (qr_w, canvas_h), "white")
+    canvas.paste(qr_img, (0,0))
+    draw = ImageDraw.Draw(canvas)
+
+    # ===== 5️⃣ Vẽ text =====
+    y = qr_h + 10
+    max_w = qr_w
     def get_font_loose(text, max_width, base_size):
         fs = base_size
         while fs >= 12:
@@ -224,47 +253,26 @@ def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
             except:
                 f = ImageFont.load_default()
                 return f
-            w = draw.textbbox((0, 0), text, font=f)[2]
+            w = draw.textbbox((0,0), text, font=f)[2]
             if w <= max_width:
                 return f
             fs -= 2
         return ImageFont.load_default()
 
-    # Màu giống create_qr_with_background_loa
-    label_color = "black"
-    value_color = (0, 102, 102)
+    for text, ttype in text_lines:
+        if ttype=="label":
+            f = font_label
+            color = (0,0,0)
+            spacing = label_spacing
+        else:
+            f = get_font_loose(text, max_w, 32)
+            color = (0,102,102)
+            spacing = value_spacing
+        w = draw.textbbox((0,0), text, font=f)[2]
+        draw.text(((qr_w - w)//2, y), text, fill=color, font=f)
+        y += (draw.textbbox((0,0), text, font=f)[3]-draw.textbbox((0,0), text, font=f)[1]) + spacing
 
-    y = qr_h + 20
-    max_w = qr_w
-
-    # ===== 3️⃣ TÊN TÀI KHOẢN =====
-    if acc_name:
-        label = "Tên tài khoản:"
-        lb_w = draw.textbbox((0, 0), label, font=font_label)[2]
-        draw.text(((qr_w - lb_w) // 2, y), label, fill=label_color, font=font_label)
-
-        y += 28 + 8
-
-        acc_text = acc_name.upper()
-        font_acc = get_font_loose(acc_text, max_w, 32)
-        acc_w = draw.textbbox((0, 0), acc_text, font=font_acc)[2]
-        draw.text(((qr_w - acc_w) // 2, y), acc_text, fill=value_color, font=font_acc)
-
-        y += 40 + 15
-
-    # ===== 4️⃣ SỐ TÀI KHOẢN — XUỐNG DÒNG RIÊNG =====
-    if merchant_id:
-        label2 = "Số tài khoản:"
-        lb2_w = draw.textbbox((0, 0), label2, font=font_label)[2]
-        draw.text(((qr_w - lb2_w) // 2, y), label2, fill=label_color, font=font_label)
-
-        y += 28 + 8
-
-        font_mer = get_font_loose(merchant_id, max_w, 32)
-        mer_w = draw.textbbox((0, 0), merchant_id, font=font_mer)[2]
-        draw.text(((qr_w - mer_w) // 2, y), merchant_id, fill=value_color, font=font_mer)
-
-    # ===== 5️⃣ XUẤT =====
+    # ===== 6️⃣ Xuất =====
     buf = io.BytesIO()
     canvas.convert("RGB").save(buf, format="PNG")
     buf.seek(0)
