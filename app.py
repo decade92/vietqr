@@ -334,7 +334,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
     padding_right = 20
     padding_bottom = 20
-    line_spacing = 5  # khoảng cách giữa tên và số điện thoại
+    line_spacing = 5
     
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
@@ -343,7 +343,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         name_h = bbox[3] - bbox[1]
     
         support_name_x = base_w - name_w - padding_right
-        support_name_y = base_h - padding_bottom - name_h - 32  # 32 là khoảng cách cho số điện thoại
+        support_name_y = base_h - padding_bottom - name_h - 32  # 32 là khoảng trống cho số điện thoại
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
     
     if support_phone and support_phone.strip():
