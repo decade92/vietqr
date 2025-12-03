@@ -495,24 +495,21 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
         y_offset += merchant_font_size + 20
 
    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
+    support_name_x, support_name_y = 500, 1138
+    support_phone_x, support_phone_y = 570, 1175
+    
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-        text_width = draw.textbbox((0,0), support_name, font=font_support_name)[2]
-        support_name_x = base.width - text_width - 20  # cách lề phải 20px
-        support_name_y = qr_y + qr_img.height + 200     # hoặc tùy chỉnh y theo bố cục
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
     
     if support_phone and support_phone.strip():
         font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-        text_width = draw.textbbox((0,0), support_phone, font=font_support_phone)[2]
-        support_phone_x = base.width - text_width - 20  # cách lề phải 20px
-        support_phone_y = support_name_y + 35           # cách dòng trên 35px
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
-    # Lưu ảnh ra buffer
-    buf = io.BytesIO()
-    base.save(buf, format="PNG")
-    buf.seek(0)
-    return buf
+        # Lưu ảnh ra buffer
+        buf = io.BytesIO()
+        base.save(buf, format="PNG")
+        buf.seek(0)
+        return buf
 
 def create_qr_tingbox(data, merchant_id):
     # Tạo QR
