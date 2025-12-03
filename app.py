@@ -201,6 +201,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
     label_font_size = 46
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
     font_qr_tip = ImageFont.truetype(FONT_PATH, 46)
+    font_qr_head = ImageFont.truetype(FONT_PATH, 55)
 
     # ===== Vẽ 2 QR + text =====
     for i in range(2):
@@ -236,7 +237,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         qr_tip_text = "Quét mã QR để thanh toán"
         x_tip = qr_x + (qr_target_w - draw.textbbox((0,0), qr_tip_text, font=font_qr_tip)[2])//2
         y_tip = qr_y - 100  # cách QR 50 px
-        draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_tip)
+        draw.text((x_tip, y_tip), qr_tip_text, fill=(0,102,102), font=font_qr_head)
 
         # ===== Vẽ text dưới QR với nhãn =====
         y_offset = qr_y + qr_target_h + 20  # 20 px dưới QR
