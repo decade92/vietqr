@@ -305,12 +305,12 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         label_acc = "Tên tài khoản:"
         x_label = (base_w - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2
         draw.text((x_label, y_offset), label_acc, fill="black", font=font_label)
-        y_offset += 28 + 40
+        y_offset += 28 + 30
 
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
         x_acc = (base_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-        y_offset += acc_font_size + 55
+        y_offset += acc_font_size + 45
 
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
