@@ -198,9 +198,9 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    label_font_size = 36
+    label_font_size = 46
     font_label = ImageFont.truetype(FONT_LABELPATH, label_font_size)
-    font_qr_tip = ImageFont.truetype(FONT_PATH, 36)
+    font_qr_tip = ImageFont.truetype(FONT_PATH, 46)
 
     # ===== Vẽ 2 QR + text =====
     for i in range(2):
@@ -217,11 +217,11 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         total_text_h = 0
         if acc_name and acc_name.strip():
             _, acc_h = get_font(acc_name.upper(), qr_target_w, 40)
-            total_text_h += label_font_size + 8 + acc_h  # nhãn + khoảng cách + tên
+            total_text_h += label_font_size + 20 + acc_h  # nhãn + khoảng cách + tên
         if merchant_id and merchant_id.strip():
             _, merchant_h = get_font(merchant_id, qr_target_w, 40)
-            total_text_h += label_font_size + 8 + merchant_h  # nhãn + khoảng cách + số tài khoản
-        total_text_h += 28  # dòng "Quét mã QR..." font 28px
+            total_text_h += label_font_size + 20 + merchant_h  # nhãn + khoảng cách + số tài khoản
+        total_text_h += 50  # dòng "Quét mã QR..." font 28px
 
         total_block_h = qr_target_h + total_text_h + 50  # 50 px trên QR cho tip
 
