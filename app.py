@@ -221,9 +221,9 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         if merchant_id and merchant_id.strip():
             _, merchant_h = get_font(merchant_id, qr_target_w, 40)
             total_text_h += label_font_size + 20 + merchant_h  # nhãn + khoảng cách + số tài khoản
-        total_text_h += 60  # dòng "Quét mã QR..." font 28px
+        total_text_h += 75  # dòng "Quét mã QR..." font 28px
 
-        total_block_h = qr_target_h + total_text_h + 50  # 50 px trên QR cho tip
+        total_block_h = qr_target_h + total_text_h + 100  # 50 px trên QR cho tip
 
         # ===== Căn giữa theo chiều dọc =====
         qr_x = border + i*half_w + (half_w - qr_target_w)//2
@@ -252,7 +252,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
             font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 40)
             x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
             draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 25
+            y_offset += acc_font_size + 35
 
         if merchant_id and merchant_id.strip():
             # Nhãn
