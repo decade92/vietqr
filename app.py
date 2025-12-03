@@ -362,6 +362,14 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
             support_phone_y = base_h - padding_bottom - phone_h
     
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
+    # Test hiển thị thông tin cán bộ hỗ trợ
+    if support_name and support_name.strip():
+        font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
+        draw.text((100, 100), support_name, fill=(255,0,0), font=font_support_name)  # màu đỏ để test
+    
+    if support_phone and support_phone.strip():
+        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
+        draw.text((100, 150), support_phone, fill=(255,0,0), font=font_support_phone)  # cách 50px bên dưới
 
     # Lưu buffer
     buf = io.BytesIO()
