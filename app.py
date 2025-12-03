@@ -370,30 +370,32 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     # Tối đa 70% chiều rộng nền
     max_text_width = int(base_w * 0.7)
 
-    # Vẽ Tên tài khoản và Số tài khoản
+    # Vẽ Tên tài khoản và Số tài khoản căn giữa nền
     y_offset = qr_y + qr_img.height + 130
 
     if acc_name and acc_name.strip():
         label_acc = "Tên tài khoản:"
-        draw.text(
-            (qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
-            label_acc, fill="black", font=font_label
-        )
+        text_width = draw.textbbox((0,0), label_acc, font=font_label)[2]
+        x_label = (base_w - text_width) // 2  # căn giữa nền
+        draw.text((x_label, y_offset), label_acc, fill="black", font=font_label)
         y_offset += 28 + 40
+
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
-        x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
+        text_width = draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]
+        x_acc = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
         y_offset += acc_font_size + 60
 
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
-        draw.text(
-            (qr_x + (qr_img.width - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
-            label_merchant, fill="black", font=font_label
-        )
+        text_width = draw.textbbox((0,0), label_merchant, font=font_label)[2]
+        x_label = (base_w - text_width) // 2  # căn giữa nền
+        draw.text((x_label, y_offset), label_merchant, fill="black", font=font_label)
         y_offset += 28 + 40
+
         font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 46)
-        x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
+        text_width = draw.textbbox((0,0), merchant_id, font=font_merchant)[2]
+        x_merchant = (base_w - text_width) // 2  # căn giữa nền
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
 
@@ -406,7 +408,6 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name):
     base.save(buf, format="PNG")
     buf.seek(0)
     return buf
-
 def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", support_name="", support_phone=""):
     # Tạo QR
     qr = qrcode.QRCode(
