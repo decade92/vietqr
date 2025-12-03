@@ -283,7 +283,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
 
     draw = ImageDraw.Draw(base)
 
-    # Font cố định
+    # Font label
     font_label = ImageFont.truetype(FONT_LABELPATH, 46)
 
     # Hàm giảm font nếu chữ dài
@@ -297,11 +297,10 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    # ===== Vẽ Tên tài khoản & Số tài khoản =====
-    max_text_width = int(base_w * 0.7)  # 70% chiều rộng nền
+    # ===== Vẽ Tên tài khoản & Số tài khoản giống loa =====
+    max_text_width = int(base_w * 0.7)
     y_offset = qr_y + qr_img.height + 130
 
-    # Tên tài khoản
     if acc_name and acc_name.strip():
         label_acc = "Tên tài khoản:"
         x_label = (base_w - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2
@@ -313,7 +312,6 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
         y_offset += acc_font_size + 60
 
-    # Số tài khoản
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
         x_label = (base_w - draw.textbbox((0,0), label_merchant, font=font_label)[2]) // 2
@@ -325,39 +323,44 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
 
-    # Store name trên cùng
+    # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
     if store_name and store_name.strip():
-        store_x = (base_w - draw.textbbox((0,0), store_name.upper(), font=store_font)[2]) // 2
-        draw.text((store_x, 265), store_name.upper(), fill="#007C71", font=store_font)
+        cx = lambda t, f: (base.width - draw.textbbox((0,0), t, font=f)[2]) // 2
+        draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
-    # ===== Cán bộ hỗ trợ =====
-    if (support_name and support_name.strip()) or (support_phone and support_phone.strip()):
-        padding_right = 20
-        padding_bottom = 20
-        line_spacing = 5
+    # ===== Tọa độ cán bộ hỗ trợ (có khung debug) =====
+    padding_right = 20
+    padding_bottom = 20
+    line_spacing = 5
 
-        # Vẽ tên
-        if support_name and support_name.strip():
-            font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-            bbox = draw.textbbox((0,0), support_name, font=font_support_name)
-            name_w = bbox[2] - bbox[0]
-            name_h = bbox[3] - bbox[1]
-            support_name_x = base_w - name_w - padding_right
-            support_name_y = base_h - padding_bottom - name_h - 32  # 32 px để số điện thoại
-            draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
-        else:
-            name_h = 0
-            support_name_y = base_h - padding_bottom - 32
+    if support_name and support_name.strip():
+        font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
+        bbox = draw.textbbox((0,0), support_name, font=font_support_name)
+        name_w = bbox[2] - bbox[0]
+        name_h = bbox[3] - bbox[1]
 
-        # Vẽ số điện thoại
-        if support_phone and support_phone.strip():
-            font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-            bbox = draw.textbbox((0,0), support_phone, font=font_support_phone)
-            phone_w = bbox[2] - bbox[0]
-            support_phone_x = base_w - phone_w - padding_right
-            support_phone_y = support_name_y + name_h + line_spacing
-            draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
+        # Debug: vẽ khung chữ
+        draw.rectangle([base_w - name_w - padding_right, base_h - name_h - padding_bottom - 32,
+                        base_w - padding_right, base_h - padding_bottom - 32], outline="red", width=2)
+
+        support_name_x = base_w - name_w - padding_right
+        support_name_y = base_h - padding_bottom - name_h - 32  # 32 px cho số điện thoại
+        draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
+
+    if support_phone and support_phone.strip():
+        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
+        bbox = draw.textbbox((0,0), support_phone, font=font_support_phone)
+        phone_w = bbox[2] - bbox[0]
+        phone_h = bbox[3] - bbox[1]
+
+        # Debug: khung chữ số điện thoại
+        draw.rectangle([base_w - phone_w - padding_right, support_name_y + name_h + line_spacing,
+                        base_w - padding_right, support_name_y + name_h + line_spacing + phone_h], outline="blue", width=2)
+
+        support_phone_x = base_w - phone_w - padding_right
+        support_phone_y = support_name_y + name_h + line_spacing
+        draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
     # Lưu buffer
     buf = io.BytesIO()
