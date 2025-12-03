@@ -263,7 +263,8 @@ def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
     buf.seek(0)
     return buf
 
-def create_qr_with_background(data, acc_name, merchant_id, store_name):
+def create_qr_with_background(data, acc_name, merchant_id, store_name, support_name="", support_phone=""):
+    # Tạo QR
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data)
     qr.make(fit=True)
@@ -274,8 +275,9 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
+    # Nền
     base = Image.open(BG_PATH).convert("RGBA")
-    base_w, base_h = base.size  # lấy kích thước nền
+    base_w, base_h = base.size
     qr_x, qr_y = 460, 936
     base.paste(qr_img, (qr_x, qr_y), qr_img)
 
@@ -284,44 +286,42 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     # Font label
     font_label = ImageFont.truetype(FONT_LABELPATH, 46)
 
-    # Hàm giảm font nếu chữ dài, giới hạn max_width
+    # Hàm giảm font nếu chữ dài
     def get_font(text, max_width, base_size):
         font_size = base_size
         font = ImageFont.truetype(FONT_PATH, font_size)
-        text_width = draw.textbbox((0, 0), text, font=font)[2]
+        text_width = draw.textbbox((0,0), text, font=font)[2]
         while text_width > max_width and font_size > 12:
             font_size -= 1
             font = ImageFont.truetype(FONT_PATH, font_size)
-            text_width = draw.textbbox((0, 0), text, font=font)[2]
+            text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
     # Tối đa 70% chiều rộng nền
     max_text_width = int(base_w * 0.7)
-
-    # Vẽ Tên tài khoản và Số tài khoản
     y_offset = qr_y + qr_img.height + 130
 
+    # Tên tài khoản
     if acc_name and acc_name.strip():
         label_acc = "Tên tài khoản:"
-        draw.text(
-            (qr_x + (qr_img.width - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
-            label_acc, fill="black", font=font_label
-        )
+        x_label = (base_w - draw.textbbox((0,0), label_acc, font=font_label)[2]) // 2
+        draw.text((x_label, y_offset), label_acc, fill="black", font=font_label)
         y_offset += 28 + 40
+
         font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 48)
-        x_acc = qr_x + (qr_img.width - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
+        x_acc = (base_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2]) // 2
         draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
         y_offset += acc_font_size + 60
 
+    # Số tài khoản
     if merchant_id and merchant_id.strip():
         label_merchant = "Số tài khoản:"
-        draw.text(
-            (qr_x + (qr_img.width - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
-            label_merchant, fill="black", font=font_label
-        )
+        x_label = (base_w - draw.textbbox((0,0), label_merchant, font=font_label)[2]) // 2
+        draw.text((x_label, y_offset), label_merchant, fill="black", font=font_label)
         y_offset += 28 + 40
+
         font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 46)
-        x_merchant = qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
+        x_merchant = (base_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2]) // 2
         draw.text((x_merchant, y_offset), merchant_id, fill=(0,102,102), font=font_merchant)
         y_offset += merchant_font_size + 60
 
@@ -329,6 +329,17 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name):
     store_font = ImageFont.truetype(FONT_PATH, 70)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
     draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
+
+    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
+    if support_name and support_name.strip():
+        font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
+        support_name_x, support_name_y = 500, 1138
+        draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
+
+    if support_phone and support_phone.strip():
+        font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
+        support_phone_x, support_phone_y = 570, 1175
+        draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
     buf = io.BytesIO()
     base.save(buf, format="PNG")
