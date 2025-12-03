@@ -166,121 +166,105 @@ def generate_qr_with_logo(data):
 
 def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
     """
-    Tạo QR + chữ giống layout LOA:
-    - Dòng (label) "Tên tài khoản:" + dòng tên (in hoa) (nếu có)
-    - Dòng (label) "Số tài khoản:" + dòng số (xuống dòng) (nếu có)
-    - Nếu không có cả hai -> trả về ảnh QR không chữ
-    - Font, màu và khoảng cách cố gắng khớp với create_qr_with_background_loa
+    Tạo QR + text giống layout LOA nhưng giữ nguyên kích thước ảnh QR và viền trắng gốc.
     """
 
-    # 1) Tạo QR từ chuỗi
+    # ===== 1️⃣ TẠO QR GIỮ NGUYÊN VIỀN =====
     qr = qrcode.QRCode(
+        version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
-        border=0
+        border=4   # giữ viền trắng nguyên bản như code cũ
     )
     qr.add_data(qr_data)
     qr.make(fit=True)
+
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
-    # Kích thước QR thống nhất (giống create_qr_with_background_loa)
-    qr_img = qr_img.resize((560, 560), Image.Resampling.LANCZOS)
-
-    # 2) Thêm logo vào giữa QR (giống LOA)
+    # Nhúng logo giữa QR giống bản của bạn
     try:
-        logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
-        qr_img.paste(logo, ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2), logo)
-    except Exception:
+        logo = Image.open(LOGO_PATH).convert("RGBA")
+        qr_w, qr_h = qr_img.size
+
+        # scale logo theo QR gốc (không sửa size QR)
+        logo_size = int(qr_w * 0.23)
+        logo = logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
+
+        pos = ((qr_w - logo_size) // 2, (qr_h - logo_size) // 2)
+        qr_img.paste(logo, pos, logo)
+    except:
         pass
 
-    # Nếu không có tên và không có merchant_id -> trả về QR thô
-    has_name = bool(acc_name and acc_name.strip())
-    has_merchant = bool(merchant_id and merchant_id.strip())
-    if not has_name and not has_merchant:
+    # Nếu không có text -> trả về ảnh QR gốc
+    if not (acc_name or merchant_id):
         buf = io.BytesIO()
         qr_img.save(buf, format="PNG")
         buf.seek(0)
         return buf
 
-    # 3) Chuẩn bị canvas và font giống LOA
-    # chiều rộng canvas = chiều rộng QR; chiều cao = QR + chỗ cho text
-    canvas_w = qr_img.width
-    # Dự phòng chiều cao: nếu có cả 2 dòng có thể cần ~220-260, nếu chỉ 1 dòng ít hơn
-    canvas_h = qr_img.height + 260
-    canvas = Image.new("RGBA", (canvas_w, canvas_h), "white")
+    # ===== 2️⃣ TẠO CANVAS GIỮ KHỔ NGUYÊN BẢN + CHO THÊM TEXT =====
+    qr_w, qr_h = qr_img.size
+    extra_h = 260   # chiều cao thêm, giống LOA
+    canvas = Image.new("RGBA", (qr_w, qr_h + extra_h), "white")
     canvas.paste(qr_img, (0, 0))
 
     draw = ImageDraw.Draw(canvas)
 
-    # Các font giống LOA
+    # Font giống LOA
     try:
-        font_label = ImageFont.truetype(FONT_LABELPATH, 28)  # label "Tên tài khoản:" / "Số tài khoản:"
-    except Exception:
+        font_label = ImageFont.truetype(FONT_LABELPATH, 28)
+    except:
         font_label = ImageFont.load_default()
 
     def get_font_loose(text, max_width, base_size):
-        """Giảm font nếu text quá dài — logic copy từ LOA"""
         fs = base_size
-        try:
-            f = ImageFont.truetype(FONT_PATH, fs)
-        except Exception:
-            f = ImageFont.load_default()
-            return f, fs
-        w = draw.textbbox((0, 0), text, font=f)[2]
-        while w > max_width and fs > 12:
-            fs -= 2
+        while fs >= 12:
             try:
                 f = ImageFont.truetype(FONT_PATH, fs)
             except:
                 f = ImageFont.load_default()
-                break
+                return f
             w = draw.textbbox((0, 0), text, font=f)[2]
-        return f, fs
+            if w <= max_width:
+                return f
+            fs -= 2
+        return ImageFont.load_default()
 
-    # màu giống LOA: giá trị trong code gốc dùng (0,102,102) cho text value
+    # Màu giống create_qr_with_background_loa
     label_color = "black"
     value_color = (0, 102, 102)
 
-    # 4) Vẽ text với khoảng cách giống LOA
-    y_offset = qr_img.height + 20
-    max_text_width = qr_img.width
+    y = qr_h + 20
+    max_w = qr_w
 
-    # Tên tài khoản: (label trên cùng) -> Dòng label, sau đó tên (in hoa)
-    if has_name:
-        label_acc = "Tên tài khoản:"
-        lb_w = draw.textbbox((0, 0), label_acc, font=font_label)[2]
-        x_label = (canvas_w - lb_w) // 2
-        draw.text((x_label, y_offset), label_acc, fill=label_color, font=font_label)
+    # ===== 3️⃣ TÊN TÀI KHOẢN =====
+    if acc_name:
+        label = "Tên tài khoản:"
+        lb_w = draw.textbbox((0, 0), label, font=font_label)[2]
+        draw.text(((qr_w - lb_w) // 2, y), label, fill=label_color, font=font_label)
 
-        y_offset += 28 + 8  # label_font_size + spacing ( giống LOA )
+        y += 28 + 8
 
-        # tên chính (in hoa), dùng FONT_PATH, base size 32
-        name_text = acc_name.strip().upper()
-        font_acc, acc_fs = get_font_loose(name_text, max_text_width, 32)
-        name_w = draw.textbbox((0, 0), name_text, font=font_acc)[2]
-        x_name = (canvas_w - name_w) // 2
-        draw.text((x_name, y_offset), name_text, fill=value_color, font=font_acc)
+        acc_text = acc_name.upper()
+        font_acc = get_font_loose(acc_text, max_w, 32)
+        acc_w = draw.textbbox((0, 0), acc_text, font=font_acc)[2]
+        draw.text(((qr_w - acc_w) // 2, y), acc_text, fill=value_color, font=font_acc)
 
-        # nhích vị trí xuống cho label số tài khoản
-        y_offset += (draw.textbbox((0, 0), name_text, font=font_acc)[3] - draw.textbbox((0, 0), name_text, font=font_acc)[1]) + 15
+        y += 40 + 15
 
-    # Số tài khoản: theo yêu cầu -> label trên 1 dòng, số trên dòng kế tiếp
-    if has_merchant:
-        label_merchant = "Số tài khoản:"
-        lb_w2 = draw.textbbox((0, 0), label_merchant, font=font_label)[2]
-        x_label2 = (canvas_w - lb_w2) // 2
-        draw.text((x_label2, y_offset), label_merchant, fill=label_color, font=font_label)
+    # ===== 4️⃣ SỐ TÀI KHOẢN — XUỐNG DÒNG RIÊNG =====
+    if merchant_id:
+        label2 = "Số tài khoản:"
+        lb2_w = draw.textbbox((0, 0), label2, font=font_label)[2]
+        draw.text(((qr_w - lb2_w) // 2, y), label2, fill=label_color, font=font_label)
 
-        y_offset += 28 + 8  # label + spacing
+        y += 28 + 8
 
-        # số tài khoản (xuống dòng riêng)
-        merchant_text = merchant_id.strip()
-        font_mer, mer_fs = get_font_loose(merchant_text, max_text_width, 32)
-        mer_w = draw.textbbox((0, 0), merchant_text, font=font_mer)[2]
-        x_mer = (canvas_w - mer_w) // 2
-        draw.text((x_mer, y_offset), merchant_text, fill=value_color, font=font_mer)
+        font_mer = get_font_loose(merchant_id, max_w, 32)
+        mer_w = draw.textbbox((0, 0), merchant_id, font=font_mer)[2]
+        draw.text(((qr_w - mer_w) // 2, y), merchant_id, fill=value_color, font=font_mer)
 
-    # 5) Xuất BytesIO (PNG)
+    # ===== 5️⃣ XUẤT =====
     buf = io.BytesIO()
     canvas.convert("RGB").save(buf, format="PNG")
     buf.seek(0)
