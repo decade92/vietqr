@@ -169,7 +169,7 @@ def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
-        border=4
+        border=3
     )
     qr.add_data(qr_data)
     qr.make(fit=True)
