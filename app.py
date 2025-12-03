@@ -175,10 +175,9 @@ def create_qr_with_text(data, acc_name, merchant_id):
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
-    # Nền landscape đã sửa sẵn
+    # Nền landscape đã chuẩn
     base = Image.open(BG_PATHFIX).convert("RGBA")
     base_w, base_h = base.size
-
     draw = ImageDraw.Draw(base)
 
     # Hàm font tự động
@@ -192,14 +191,13 @@ def create_qr_with_text(data, acc_name, merchant_id):
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    # Vẽ 2 block theo chiều ngang
+    # ===== Vẽ 2 block QR + text =====
     block_w = base_w // 2
     for i in range(2):
         qr_x = i*block_w + (block_w - qr_img.width)//2
-        qr_y = (base_h - qr_img.height)//2 - 30  # căn giữa chiều dọc
+        qr_y = (base_h - qr_img.height)//2 - 30
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
-        # Vẽ text dưới QR
         y_offset = qr_y + qr_img.height + 20
         max_text_width = qr_img.width
         label_font_size = 28
@@ -223,11 +221,12 @@ def create_qr_with_text(data, acc_name, merchant_id):
             font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
             draw.text((qr_x + (qr_img.width - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2, y_offset),
                       merchant_id, fill=(0,102,102), font=font_merchant)
+
     # ===== Quay ảnh trước khi save =====
     rotated_base = base.rotate(rotate_deg, expand=True)
-    # Return buffer
+
     buf = io.BytesIO()
-    base.save(buf, format="PNG")
+    rotated_base.save(buf, format="PNG")
     buf.seek(0)
     return buf
 
