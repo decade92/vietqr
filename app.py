@@ -264,14 +264,14 @@ def create_qr_with_text(qr_data, acc_name=None, merchant_id=None):
     return buf
 
 def create_qr_with_background(data, acc_name, merchant_id, store_name, support_name="", support_phone=""):
-    # Tạo QR
+    # ===== Tạo QR =====
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data)
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((540, 540))
     qr_img = round_corners(qr_img, 40)
 
-    # Thêm logo lên QR
+    # Logo trên QR
     logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
@@ -283,7 +283,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
 
     draw = ImageDraw.Draw(base)
 
-    # Font label
+    # Font label cố định
     font_label = ImageFont.truetype(FONT_LABELPATH, 46)
 
     # Hàm giảm font nếu chữ dài
@@ -297,8 +297,8 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
             text_width = draw.textbbox((0,0), text, font=font)[2]
         return font, font_size
 
-    # Tối đa 70% chiều rộng nền
-    max_text_width = int(base_w * 0.7)
+    # ===== Vẽ Tên tài khoản & Số tài khoản =====
+    max_text_width = int(base_w * 0.7)  # 70% chiều rộng nền
     y_offset = qr_y + qr_img.height + 130
 
     # Tên tài khoản
@@ -328,23 +328,25 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     # Store name
     store_font = ImageFont.truetype(FONT_PATH, 70)
     cx = lambda t, f: (base.width - draw.textbbox((0, 0), t, font=f)[2]) // 2
-    draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
+    if store_name and store_name.strip():
+        draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
-    # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
-   if support_name and support_name.strip():
+    # ===== Cán bộ hỗ trợ =====
+    support_name_y = base.height - 100
+    if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
         text_width = draw.textbbox((0,0), support_name, font=font_support_name)[2]
-        support_name_x = base.width - text_width - 20  # cách lề phải 20px
-        support_name_y = base.height - 100  # cách đáy nền 100px, có thể chỉnh
+        support_name_x = base.width - text_width - 20
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
 
     if support_phone and support_phone.strip():
         font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
         text_width = draw.textbbox((0,0), support_phone, font=font_support_phone)[2]
         support_phone_x = base.width - text_width - 20
-        support_phone_y = support_name_y + 35  # cách dòng trên 35px
+        support_phone_y = support_name_y + 35
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
+    # Lưu buffer
     buf = io.BytesIO()
     base.save(buf, format="PNG")
     buf.seek(0)
