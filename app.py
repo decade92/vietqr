@@ -229,13 +229,13 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
         # ===== Vẽ text dưới QR =====
-        y_offset = qr_y + qr_target_h
+        y_offset += qr_y + qr_target_h + 20
         max_text_width = qr_target_w
 
         if acc_name and acc_name.strip():
             label_acc = "Tên tài khoản:"
             draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 30),
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 4),
                 label_acc, fill="black", font=font_label
             )
             y_offset += label_font_size + 20
