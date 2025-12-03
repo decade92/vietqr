@@ -173,7 +173,8 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
     # ===== Mở nền =====
     base = Image.open(BG_PATHFIX).convert("RGBA")
     base_w, base_h = base.size
-    # Thêm border
+
+    # ===== Thêm border =====
     new_w, new_h = base_w + border*2, base_h + border*2
     bordered_base = Image.new("RGBA", (new_w, new_h), (255,255,255,255))
     bordered_base.paste(base, (border, border))
@@ -210,35 +211,47 @@ def create_qr_with_text(data, acc_name, merchant_id, border=50, usage_ratio=0.85
         logo_h = int(logo_resized.height / logo_resized.width * logo_w)
         logo_resized = logo_resized.resize((logo_w, logo_h))
         qr_img.paste(logo_resized, ((qr_target_w - logo_w)//2, (qr_target_h - logo_h)//2), logo_resized)
-        # Paste QR vào nền
+
+        # ===== Tính tổng chiều cao block (QR + text) =====
+        total_text_h = 0
+        if acc_name and acc_name.strip():
+            _, acc_h = get_font(acc_name.upper(), qr_target_w, 32)
+            total_text_h += label_font_size + 8 + acc_h + 15
+        if merchant_id and merchant_id.strip():
+            _, merchant_h = get_font(merchant_id, qr_target_w, 32)
+            total_text_h += label_font_size + 8 + merchant_h + 20
+
+        total_block_h = qr_target_h + total_text_h
+
+        # ===== Căn giữa theo chiều dọc =====
         qr_x = border + i*half_w + (half_w - qr_target_w)//2
-        qr_y = base_h//4 - qr_target_h//2 - 30
+        qr_y = (base_h - total_block_h)//2
         base.paste(qr_img, (qr_x, qr_y), qr_img)
 
-        # Vẽ text dưới QR
-        y_offset = qr_y + qr_target_h + 10
+        # ===== Vẽ text dưới QR =====
+        y_offset = qr_y + qr_target_h
         max_text_width = qr_target_w
 
         if acc_name and acc_name.strip():
             label_acc = "Tên tài khoản:"
             draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset),
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_acc, font=font_label)[2])//2, y_offset + 4),
                 label_acc, fill="black", font=font_label
             )
-            y_offset += label_font_size + 4
+            y_offset += label_font_size + 8
 
             font_acc, acc_font_size = get_font(acc_name.upper(), max_text_width, 32)
             x_acc = qr_x + (qr_target_w - draw.textbbox((0,0), acc_name.upper(), font=font_acc)[2])//2
             draw.text((x_acc, y_offset), acc_name.upper(), fill=(0,102,102), font=font_acc)
-            y_offset += acc_font_size + 8
+            y_offset += acc_font_size + 15
 
         if merchant_id and merchant_id.strip():
             label_merchant = "Số tài khoản:"
             draw.text(
-                (qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset),
+                (qr_x + (qr_target_w - draw.textbbox((0,0), label_merchant, font=font_label)[2])//2, y_offset + 4),
                 label_merchant, fill="black", font=font_label
             )
-            y_offset += label_font_size + 4
+            y_offset += label_font_size + 8
 
             font_merchant, merchant_font_size = get_font(merchant_id, max_text_width, 32)
             x_merchant = qr_x + (qr_target_w - draw.textbbox((0,0), merchant_id, font=font_merchant)[2])//2
