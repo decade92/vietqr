@@ -332,18 +332,24 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
         draw.text((cx(store_name.upper(), store_font), 265), store_name.upper(), fill="#007C71", font=store_font)
 
     # Tọa độ tùy chỉnh cho cán bộ hỗ trợ
+    padding_right = 20
+    padding_bottom = 20
+    line_spacing = 5  # khoảng cách giữa tên và số điện thoại
+    
     if support_name and support_name.strip():
         font_support_name = ImageFont.truetype(FONT_LABELPATH, 32)
-        text_width = draw.textbbox((0,0), support_name, font=font_support_name)[2]
-        support_name_x = base.width - text_width - 20
-        support_name_y = base.height - 100
+        name_w, name_h = draw.textbbox((0,0), support_name, font=font_support_name)[2:]
+        
+        # Tính y dựa trên chiều cao chữ + khoảng cách padding
+        support_name_y = base_h - padding_bottom - name_h - 32  # 32 là chiều cao ước lượng của dòng số điện thoại
+        support_name_x = base_w - name_w - padding_right
         draw.text((support_name_x, support_name_y), support_name, fill=(0,102,102), font=font_support_name)
     
     if support_phone and support_phone.strip():
         font_support_phone = ImageFont.truetype(FONT_LABELPATH, 32)
-        text_width = draw.textbbox((0,0), support_phone, font=font_support_phone)[2]
-        support_phone_x = base.width - text_width - 20
-        support_phone_y = support_name_y + 35
+        phone_w, phone_h = draw.textbbox((0,0), support_phone, font=font_support_phone)[2:]
+        support_phone_x = base_w - phone_w - padding_right
+        support_phone_y = support_name_y + name_h + line_spacing
         draw.text((support_phone_x, support_phone_y), support_phone, fill=(0,102,102), font=font_support_phone)
 
     # Lưu buffer
