@@ -160,7 +160,7 @@ def generate_qr_with_logo(data):
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
     qr.add_data(data); qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((int(img.width*0.45), int(img.height*0.15)))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((int(img.width*0.15), int(img.height*0.15)))
     img.paste(logo, ((img.width - logo.width) // 2, (img.height - logo.height) // 2), logo)
     buf = io.BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
     return buf
