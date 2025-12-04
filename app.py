@@ -209,7 +209,7 @@ def create_qr_with_text(data, acc_name, merchant_id, border=100, usage_ratio=0.8
         qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((qr_target_w, qr_target_h))
         # Logo resize và paste vào QR
         logo_resized = Image.open(LOGO_PATH).convert("RGBA")
-        logo_w = int(qr_target_w * 0.4)
+        logo_w = int(qr_target_w * 0.15)
         logo_h = int(logo_resized.height / logo_resized.width * logo_w)
         logo_resized = logo_resized.resize((logo_w, logo_h))
         qr_img.paste(logo_resized, ((qr_target_w - logo_w)//2, (qr_target_h - logo_h)//2), logo_resized)
