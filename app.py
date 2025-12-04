@@ -279,7 +279,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     qr_img = round_corners(qr_img, 40)
 
     # Logo trên QR
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((80, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((100, 100))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
     # Nền
@@ -376,7 +376,7 @@ def create_qr_with_background_thantai(data, acc_name, merchant_id, store_name, s
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((480, 520))
 
     # Thêm logo lên QR
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((100, 100))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
     # Mở nền
@@ -478,7 +478,7 @@ def create_qr_with_background_loa(data, acc_name, merchant_id, store_name="", su
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((560, 560))
 
     # Thêm logo lên QR
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((100, 100))
     qr_img.paste(
         logo,
         ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2),
@@ -565,7 +565,7 @@ def create_qr_tingbox(data, merchant_id):
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA").resize((460, 460))
     # Thêm logo lên QR
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((100, 100))
     qr_img.paste(
         logo,
         ((qr_img.width - logo.width) // 2, (qr_img.height - logo.height) // 2),
