@@ -279,7 +279,7 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     qr_img = round_corners(qr_img, 40)
 
     # Logo trên QR
-    logo = Image.open(LOGO_PATH).convert("RGBA").resize((240, 80))
+    logo = Image.open(LOGO_PATH).convert("RGBA").resize((80, 80))
     qr_img.paste(logo, ((qr_img.width - logo.width)//2, (qr_img.height - logo.height)//2), logo)
 
     # Nền
