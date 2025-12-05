@@ -30,67 +30,6 @@ BG_THAI_PATH = os.path.join(ASSETS_DIR, "backgroundthantai.png")
 BG_LOA_PATH = os.path.join(ASSETS_DIR, "backgroundloa.png")
 BG_TINGBOX_PATH = os.path.join(ASSETS_DIR, "tingbox.png")
 
-def ultra_qr_morphology(img_bgr):
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    gray = cv2.equalizeHist(gray)
-    blur = cv2.GaussianBlur(gray, (5,5), 0)
-
-    # Threshold OTSU
-    _, bw = cv2.threshold(
-        blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
-    )
-
-    # Morph close để gom QR dot-style thành module vuông
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-    morph = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
-
-    # Phóng lớn để ZXing dễ bắt điểm
-    morph_big = cv2.resize(
-        morph, None, fx=2, fy=2,
-        interpolation=cv2.INTER_NEAREST
-    )
-
-    return morph_big
-def decode_qr_smart(img_bgr):
-    """
-    Pipeline decode QR:
-    1. ZXing trực tiếp
-    2. OpenCV preprocess
-    3. UltraQR morphology
-    """
-    # Tầng 1 — ZXing trực tiếp
-    try:
-        r1 = zxingcpp.read_barcode(img_bgr)
-        if r1 and r1.text:
-            return r1.text
-    except:
-        pass
-
-    # Tầng 2 — OpenCV enhance + ZXing
-    try:
-        gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-        gray = cv2.equalizeHist(gray)
-        blur = cv2.GaussianBlur(gray, (5,5), 0)
-        _, bw = cv2.threshold(
-            blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
-        )
-
-        r2 = zxingcpp.read_barcode(bw)
-        if r2 and r2.text:
-            return r2.text
-    except:
-        pass
-
-    # Tầng 3 — UltraQR
-    try:
-        morph = ultra_qr_morphology(img_bgr)
-        r3 = zxingcpp.read_barcode(morph)
-        if r3 and r3.text:
-            return r3.text
-    except:
-        pass
-
-    return None
 # ======== QR Logic Functions ========
 def clean_amount_input(raw_input):
     if not raw_input:
@@ -160,58 +99,19 @@ def decode_qr_auto(uploaded_image):
     file_bytes = np.asarray(bytearray(uploaded_image.read()), dtype=np.uint8)
     image_cv2 = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    # -------------------------------------
-    # 1️⃣ Tầng 1: OpenCV QRCodeDetector
-    # -------------------------------------
+    # Step 1: OpenCV
     detector = cv2.QRCodeDetector()
     data, _, _ = detector.detectAndDecode(image_cv2)
     if data:
         try:
             if data.startswith("00"):
-                _ = parse_tlv(data)
+                _ = parse_tlv(data)  # Gọi thử để xác thực cấu trúc TLV
                 return data.strip(), "✅ Đọc bằng OpenCV"
         except Exception as e:
+            # Nếu sai TLV, tiếp tục thử ZXing
             st.info(f"⚠️ OpenCV phát hiện QR nhưng không hợp chuẩn TLV: {e}")
 
-    # -------------------------------------
-    # 2️⃣ Tầng 2: ZXingCPP nội bộ (NHANH & KHỎE)
-    # -------------------------------------
-    try:
-        result_cpp = zxingcpp.read_barcode(image_cv2)
-        if result_cpp and result_cpp.text:
-            decoded = result_cpp.text.strip()
-            try:
-                if decoded.startswith("00"):
-                    _ = parse_tlv(decoded)
-                    return decoded, "✅ Đọc bằng ZXingCPP"
-            except Exception as e:
-                st.info(f"⚠️ ZXingCPP đọc được nhưng không hợp chuẩn TLV: {e}")
-    except Exception as e:
-        st.info(f"⚠️ ZXingCPP lỗi: {e}")
-
-    # -------------------------------------
-    # 3️⃣ Tầng 3: UltraQR morphology (ĐỌC QR DOT-STYLE)
-    # -------------------------------------
-    try:
-        # UltraQR: morphology phục hồi module
-        morph = ultra_qr_morphology(image_cv2)
-        result_ultra = zxingcpp.read_barcode(morph)
-
-        if result_ultra and result_ultra.text:
-            decoded = result_ultra.text.strip()
-            try:
-                if decoded.startswith("00"):
-                    _ = parse_tlv(decoded)
-                    return decoded, "✅ Đọc bằng UltraQR (Morphology)"
-            except Exception as e:
-                st.info(f"⚠️ UltraQR đọc được nhưng sai TLV: {e}")
-
-    except Exception as e:
-        st.info(f"⚠️ UltraQR lỗi: {e}")
-
-    # -------------------------------------
-    # 4️⃣ Tầng 4: ZXing.org (HTTP fallback)
-    # -------------------------------------
+    # Step 2: ZXing fallback
     try:
         uploaded_image.seek(0)
         img = Image.open(uploaded_image).convert("RGB")
@@ -229,17 +129,14 @@ def decode_qr_auto(uploaded_image):
                 zxing_data = result_tag.text.strip()
                 try:
                     if zxing_data.startswith("00"):
-                        _ = parse_tlv(zxing_data)
-                        return zxing_data, "✅ Đọc bằng ZXing.org"
+                        _ = parse_tlv(zxing_data)  # Xác thực TLV
+                        return zxing_data, "✅ Đọc bằng ZXing"
                 except Exception as e:
-                    return None, f"❌ ZXing.org đọc nhưng sai chuẩn TLV: {e}"
+                    return None, f"❌ ZXing đọc nhưng sai chuẩn TLV: {e}"
     except Exception as e:
-        return None, f"❌ Lỗi gọi ZXing.org: {e}"
+        return None, f"❌ ZXing lỗi: {e}"
 
-    # -------------------------------------
-    # 5️⃣ Hoàn toàn thất bại
-    # -------------------------------------
-    return None, "❌ Không thể đọc QR bằng OpenCV, ZXingCPP, UltraQR hoặc ZXing.org"
+    return None, "❌ Không thể đọc QR bằng OpenCV hoặc ZXing. QR được giải mã nhưng không đúng chuẩn VietQR"
     
 def round_corners(image, radius):
     rounded = Image.new("RGBA", image.size, (0, 0, 0, 0))
