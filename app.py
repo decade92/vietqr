@@ -76,33 +76,7 @@ def parse_tlv(payload):
         i = value_end
     return tlv_data
 
-def preprocess_dot_qr(image_cv2):
-    """
-    Tiền xử lý ảnh QR dạng dot để OpenCV dễ nhận diện hơn
-    Input: OpenCV image (BGR)
-    Output: OpenCV image (BGR) đã xử lý
-    """
-    # Chuyển sang grayscale
-    gray = cv2.cvtColor(image_cv2, cv2.COLOR_BGR2GRAY)
 
-    # Tăng contrast bằng histogram equalization
-    gray = cv2.equalizeHist(gray)
-
-    # Áp threshold adaptive để làm rõ các ô QR
-    thresh = cv2.adaptiveThreshold(
-        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY, 11, 2
-    )
-
-    # Blur nhẹ để giảm nhiễu (kernel nhỏ)
-    blur = cv2.GaussianBlur(thresh, (3, 3), 0)
-
-    # Resize lớn hơn (nếu QR quá nhỏ)
-    h, w = blur.shape
-    scale = max(1, 600 // max(h, w))  # Resize sao cho max side ~600px
-    resized = cv2.resize(blur, (w*scale, h*scale), interpolation=cv2.INTER_LINEAR)
-
-    return resized
 def extract_vietqr_info(payload):
     parsed = parse_tlv(payload)
     info = {"account": "", "bank_bin": "", "name": "", "note": "", "amount": ""}
@@ -131,21 +105,11 @@ def decode_qr_auto(uploaded_image):
     if data:
         try:
             if data.startswith("00"):
-                _ = parse_tlv(data)
+                _ = parse_tlv(data)  # Gọi thử để xác thực cấu trúc TLV
                 return data.strip(), "✅ Đọc bằng OpenCV"
-        except:
-            pass  # Nếu TLV không đúng, thử bước preprocessing
-
-    # --- Bước 1b: OpenCV với preprocessing ---
-    preprocessed = preprocess_dot_qr(image_cv2)
-    data, _, _ = detector.detectAndDecode(preprocessed)
-    if data:
-        try:
-            if data.startswith("00"):
-                _ = parse_tlv(data)
-                return data.strip(), "✅ Đọc bằng OpenCV (preprocessed)"
-        except:
-            pass
+        except Exception as e:
+            # Nếu sai TLV, tiếp tục thử ZXing
+            st.info(f"⚠️ OpenCV phát hiện QR nhưng không hợp chuẩn TLV: {e}")
 
     # Step 2: ZXing fallback
     try:
