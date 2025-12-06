@@ -289,8 +289,8 @@ def create_qr_with_background(data, acc_name, merchant_id, store_name, support_n
     base.paste(qr_img, (qr_x, qr_y), qr_img)
 
     draw = ImageDraw.Draw(base)
-    font_branch = ImageFont.truetype(FONT_PATH, 36)  # cỡ font tùy chỉnh
-    draw.text((468, 170), "Chi nhánh", fill="#3C7471", font=font_branch)
+    font_branch = ImageFont.truetype(FONT_PATH, 40)  # cỡ font tùy chỉnh
+    draw.text((470, 160), "Chi nhánh", fill="#3C7471", font=font_branch)
     # Font label
     font_label = ImageFont.truetype(FONT_LABELPATH, 46)
 
